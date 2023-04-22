@@ -72,12 +72,11 @@ const LandingPage = (props) => {
       navigation("/homepage");
     }
     setIsLoading(true);
-    axios
-      .get("http://ip-api.com/json/?fields=countryCode,city,country", {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      })
+    axiosaxios({
+      method: "get",
+      url: "http://ip-api.com/json/?fields=countryCode,city,country",
+      withCredentials: false,
+    })
       .then((response) => {
         setCity(response.data.city);
         setCountryCode(response.data.countryCode);
