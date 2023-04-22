@@ -72,7 +72,7 @@ const LandingPage = (props) => {
       navigation("/homepage");
     }
     setIsLoading(true);
-    axiosaxios({
+    axios({
       method: "get",
       url: "http://ip-api.com/json/?fields=countryCode,city,country",
       withCredentials: false,
