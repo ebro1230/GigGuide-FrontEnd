@@ -261,6 +261,16 @@ const LocalBandsPage = () => {
           setCountryCode(response.data.countryCode);
           setCountry(response.data.country);
           setGenre(0);
+          axios
+            .get(
+              `${process.env.REACT_APP_BACKEND_URL}api/artists/0/${response.data.country}/${response.data.city}/0`
+            )
+            .then((response) => {
+              setLocalBands(response.data);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         })
         .catch((error) => {
           console.log(error);
