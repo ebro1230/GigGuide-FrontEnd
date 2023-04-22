@@ -76,6 +76,9 @@ const LandingPage = (props) => {
       method: "get",
       url: "http://ip-api.com/json/?fields=countryCode,city,country",
       withCredentials: false,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
     })
       .then((response) => {
         setCity(response.data.city);
