@@ -89,7 +89,6 @@ const LandingPage = () => {
             `https://app.ticketmaster.com/discovery/v2/events?apikey=${process.env.REACT_APP_TICKETMASTER_API}&locale=*&sort=date,asc&city=${response.data.city}&countryCode=${response.data.country_code2}&segmentName=Music`
           )
           .then((response) => {
-            console.log(response);
             setBands(response.data._embedded.events);
             setUpcomingMainstreamEvents(
               response.data._embedded.events.map((band) => {
@@ -117,8 +116,10 @@ const LandingPage = () => {
                     : "",
                   address: band._embedded.venues
                     ? band._embedded.venues[0].state
-                      ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
-                      : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                      ? band._embedded.venues[0].address
+                        ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
+                        : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                      : ""
                     : "",
                   artistType: "mainstream",
                 };
@@ -168,7 +169,6 @@ const LandingPage = () => {
         setIsLoading(false);
       });
   }, []);
-  console.log(upcomingMainstreamEvents);
   return (
     <div className="landingpage-container">
       <br />

@@ -188,9 +188,11 @@ const Searchpage = () => {
                       : ""
                     : "",
                   address: band._embedded.venues
-                    ? band._embedded.venues[0].state
-                      ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
-                      : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                    ? band._embedded.venues[0].address
+                      ? band._embedded.venues[0].state
+                        ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
+                        : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                      : ""
                     : "",
                   artistType: "mainstream",
                 };

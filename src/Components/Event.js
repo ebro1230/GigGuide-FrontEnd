@@ -14,7 +14,6 @@ const Event = (props) => {
   const id = sessionStorage.getItem("userId");
   const navigate = useNavigate();
   let eventKey = 0;
-  console.log(upcomingEvents);
 
   return (
     <Accordion className="accordion" key={type}>
@@ -43,6 +42,7 @@ const Event = (props) => {
                         {event.artistName} {event.eventName}
                       </h2>
                       <h3>
+                        event.date.length ?(
                         {new Date(event.date).toLocaleDateString("en-US", {
                           weekday: "long",
                           year: "numeric",
@@ -54,6 +54,7 @@ const Event = (props) => {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
+                        ) : null
                       </h3>
                     </div>
                   </AccordionHeader>
@@ -140,17 +141,22 @@ const Event = (props) => {
                         {event.artistName} {event.eventName}
                       </h2>
                       <h3>
-                        {new Date(event.date).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                        ,{" "}
-                        {new Date(event.startTime).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {event.date
+                          ? new Date(event.date).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }) +
+                            " " +
+                            new Date(event.startTime).toLocaleTimeString(
+                              "en-US",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )
+                          : null}
                       </h3>
                     </div>
                   </AccordionHeader>

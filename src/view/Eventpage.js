@@ -6,6 +6,7 @@ import axios from "axios";
 
 import AccordionHeader from "react-bootstrap/AccordionHeader";
 import AccordionItem from "react-bootstrap/AccordionItem";
+import Event from "../Components/Event";
 
 import Datetime from "react-datetime";
 import LoadingIndicator from "../Components/LoadingIndicator";
@@ -45,7 +46,7 @@ const EventsPage = () => {
   const navigate = useNavigate();
 
   let eventKey = 0;
-  console.log(`Upcoming Events: ${upcomingEvents}`);
+  console.log(upcomingEvents);
 
   useEffect(() => {
     setIsLoading(true);
@@ -214,74 +215,38 @@ const EventsPage = () => {
                 const events = response.data._embedded.events;
                 console.log(events);
                 setUpcomingEvents(
-                  events.map((event) => {
-                    if (event._embedded.venues[0].state) {
-                      if (event._embedded.venues[0].generalInfo) {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].state.stateCode +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: event._embedded.venues[0].generalInfo
-                            .generalRule,
-                        };
-                      } else {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].state.stateCode +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: "Information for this show is unavailable",
-                        };
-                      }
-                    } else {
-                      if (event._embedded.venues[0].generalInfo) {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: event._embedded.venues[0].generalInfo
-                            .generalRule,
-                        };
-                      } else {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: event._embedded.venues[0].generalInfo,
-                        };
-                      }
-                    }
+                  response.data._embedded.events.map((band) => {
+                    return {
+                      artistId: band._embedded.attractions
+                        ? band._embedded.attractions[0].id
+                        : band.id,
+                      eventId: band.id,
+                      profilePicture: band.images.find(
+                        (element) =>
+                          element.ratio === "16_9" && element.height > 150
+                      ).url,
+                      artistName: band._embedded.attractions
+                        ? band._embedded.attractions[0].name
+                        : band.name,
+                      eventName: band._embedded.venues
+                        ? `at ${band._embedded.venues[0].name}`
+                        : "",
+                      date: band.dates.start.dateTime,
+                      startTime: band.dates.start.dateTime,
+                      info: band._embedded.venues
+                        ? band._embedded.venues[0].generalInfo
+                          ? band._embedded.venues[0].generalInfo.generalRule
+                          : ""
+                        : "",
+                      address: band._embedded.venues
+                        ? band._embedded.venues[0].address
+                          ? band._embedded.venues[0].state
+                            ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
+                            : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                          : ""
+                        : "",
+                      artistType: "mainstream",
+                    };
                   })
                 );
               })
@@ -535,117 +500,13 @@ const EventsPage = () => {
           <p className="event-list-title">
             More Upcoming Shows From {userName}:
           </p>
-          <Accordion className="accordion">
-            {upcomingEvents.length ? (
-              upcomingEvents.map((event) => {
-                eventKey++;
-                return (
-                  <AccordionItem className="AcordionItem" eventKey={eventKey}>
-                    <AccordionHeader className="row">
-                      <div className="col-5 col-sm-4 col-md-3 col-lg-2">
-                        <NavLink to={`/${userId}/event/${event._id}`}>
-                          <Figure>
-                            <Figure.Image
-                              width={"100%"}
-                              src={userProfileImg}
-                              alt="Artist Image"
-                            />
-                          </Figure>
-                        </NavLink>
-                      </div>
-                      <div className="col eventTitle">
-                        <h2>
-                          {userName} at {event.eventName}
-                        </h2>
-                        <h3>
-                          {new Date(event.date).toLocaleDateString("en-US", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                          ,{" "}
-                          {new Date(event.startTime).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
-                        </h3>
-                      </div>
-                    </AccordionHeader>
-                    <Accordion.Body>
-                      <NavLink to={`/${userId}/event/${event._id}`}>
-                        <div className="row">
-                          <p>{event.venue} </p>
-                          <p className="venueAddress">{event.address}</p>
-                        </div>
-                        <div className="row">
-                          <p className="eventInfo">{event.info}</p>
-                        </div>
-                      </NavLink>
-                      <div className="col-5 col-sm-3 saveEventdiv">
-                        {id ? (
-                          currentSavedEvents.length ? (
-                            currentSavedEvents.find(
-                              (savedEvent) => savedEvent.id === event._id
-                            ) ? (
-                              <Button
-                                variant="success"
-                                className="saveEventButton"
-                                onClick={handleEventClick}
-                                value="Saved"
-                                title={JSON.stringify({
-                                  profilePicture: userProfileImg,
-                                  name: userName,
-                                })}
-                                id={JSON.stringify(event)}
-                              >
-                                Saved
-                              </Button>
-                            ) : (
-                              <Button
-                                variant="primary"
-                                className="saveEventButton"
-                                onClick={handleEventClick}
-                                value="Save Event"
-                                title={JSON.stringify({
-                                  profilePicture: userProfileImg,
-                                  name: userName,
-                                })}
-                                id={JSON.stringify(event)}
-                              >
-                                Save Event
-                              </Button>
-                            )
-                          ) : (
-                            <Button
-                              variant="primary"
-                              className="saveEventButton"
-                              onClick={handleEventClick}
-                              value="Save Event"
-                              title={JSON.stringify({
-                                profilePicture: userProfileImg,
-                                name: userName,
-                              })}
-                              id={JSON.stringify(event)}
-                            >
-                              Save Event
-                            </Button>
-                          )
-                        ) : null}
-                      </div>
-                    </Accordion.Body>
-                  </AccordionItem>
-                );
-              })
-            ) : (
-              <div className="noShowsdiv">
-                <h6>No Upcoming Shows</h6>
-              </div>
-            )}
-          </Accordion>
+          <Event
+            className="upcoming-shows"
+            upcomingEvents={upcomingEvents}
+            type="local"
+            onEventClick={handleEventClick}
+            currentSavedEvents={currentSavedEvents}
+          />
 
           <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
             <Modal.Header closeButton>

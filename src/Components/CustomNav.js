@@ -84,7 +84,7 @@ const CustomNav = (props) => {
               <LinkContainer to="/homepage">
                 <Nav.Link>Home</Nav.Link>
               </LinkContainer>
-              <LinkContainer to={`/userprofile/${id}`}>
+              <LinkContainer to={`/myprofile/${id}`}>
                 <Nav.Link>Profile</Nav.Link>
               </LinkContainer>
               <LinkContainer to="/localartists">

@@ -22,6 +22,7 @@ const App = () => {
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/localartists" element={<LocalBandsPage />} />
         <Route path="/userprofile/:userId" element={<UserProfilepage />} />
+        <Route path="/myprofile/:userId" element={<UserProfilepage />} />
         <Route path="/:userId/event/:eventId" element={<EventPage />} />
         <Route
           path="/search/:name/:country/:city/:genre"

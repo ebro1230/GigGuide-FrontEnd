@@ -142,6 +142,17 @@ const UserProfilepage = () => {
           if (response.data.upcomingEvents.length) {
             setIsTouring(true);
           }
+          if (id) {
+            axios
+              .get(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`)
+              .then((response) => {
+                setCurrentFaveArtists(response.data.favouriteArtists);
+                setCurrentSavedEvents(response.data.plannedEvents);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }
         })
         .catch((error) => {
           console.log(error);
@@ -156,7 +167,17 @@ const UserProfilepage = () => {
         )
         .then((response) => {
           const user = response.data._embedded.events[0];
-          let upcomingEvents = [];
+          if (id) {
+            axios
+              .get(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`)
+              .then((response) => {
+                setCurrentFaveArtists(response.data.favouriteArtists);
+                setCurrentSavedEvents(response.data.plannedEvents);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }
           if (user._embedded.attractions[0].upcomingEvents._total > 0) {
             setIsTouring(true);
             axios
@@ -206,9 +227,11 @@ const UserProfilepage = () => {
                           : ""
                         : "",
                       address: band._embedded.venues
-                        ? band._embedded.venues[0].state
-                          ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
-                          : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                        ? band._embedded.venues[0].address
+                          ? band._embedded.venues[0].state
+                            ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
+                            : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                          : ""
                         : "",
                       artistType: "mainstream",
                     };
@@ -253,21 +276,7 @@ const UserProfilepage = () => {
           setIsLoading(false);
         });
     }
-    if (id) {
-      axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`)
-        .then((response) => {
-          setCurrentFaveArtists(response.data.favouriteArtists);
-          setCurrentSavedEvents(response.data.plannedEvents);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, []);
+  }, [userId]);
 
   return isLoading ? (
     <div
