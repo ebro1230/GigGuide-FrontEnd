@@ -13,6 +13,7 @@ import Logo from "../img/Logo.png";
 import Signup from "../img/Signup.png";
 import localArtistImg from "../img/localartists.png";
 import Homepage from "../img/Homepage.png";
+import { LinkContainer } from "react-router-bootstrap";
 
 const CustomNav = (props) => {
   const id = sessionStorage.getItem("userId");
@@ -39,7 +40,13 @@ const CustomNav = (props) => {
     navigate("/");
   };
   return id ? (
-    <Navbar bg="dark" expand={expanded} className="navdiv" fixed="top">
+    <Navbar
+      bg="dark"
+      expand={expanded}
+      collapseOnSelect
+      className="navdiv"
+      fixed="top"
+    >
       <Container fluid>
         <Navbar.Brand>
           <div className="col Logodiv">
@@ -74,18 +81,26 @@ const CustomNav = (props) => {
           </Offcanvas.Header>
           <Offcanvas.Body>
             <Nav className="justify-content-end flex-grow-1 pe-3">
-              <Nav.Link onClick={onHomeClick}>Home</Nav.Link>
-              <Nav.Link onClick={onProfileClick}>Profile</Nav.Link>
-              <Nav.Link onClick={onLocalArtistsClick}>Local Artists</Nav.Link>
-              <Nav.Link onClick={onSearchClick}>Search</Nav.Link>
-              <Nav.Link
+              <LinkContainer to="/homepage">
+                <Nav.Link>Home</Nav.Link>
+              </LinkContainer>
+              <LinkContainer to={`/userprofile/${id}`}>
+                <Nav.Link>Profile</Nav.Link>
+              </LinkContainer>
+              <LinkContainer to="/localartists">
+                <Nav.Link>Local Artists</Nav.Link>
+              </LinkContainer>
+              <LinkContainer to="/search/0/0/0/0">
+                <Nav.Link>Search</Nav.Link>
+              </LinkContainer>
+              <LinkContainer
+                to="/"
                 onClick={() => {
                   sessionStorage.clear();
-                  onLogoutClick();
                 }}
               >
-                Logout
-              </Nav.Link>
+                <Nav.Link>Logout</Nav.Link>
+              </LinkContainer>
             </Nav>
           </Offcanvas.Body>
         </Navbar.Offcanvas>

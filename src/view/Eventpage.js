@@ -44,275 +44,258 @@ const EventsPage = () => {
   const [deleteEvent, setDeleteEvent] = useState(false);
   const navigate = useNavigate();
 
-  console.log(`User Name: ${userName}`);
-  console.log(`User Name: ${userName}`);
-  console.log(`User Name: ${userName}`);
-  console.log(`Banner Image: ${userBannerImg}`);
-  console.log(`Profile Image: ${userProfileImg}`);
-  console.log(`Username: ${userUsername}`);
-  console.log(`Artist Name: ${artistName}`);
-  console.log(`Event Name: ${eventName}`);
-  console.log(`Event Address: ${eventAddress}`);
-  console.log(`Event Info: ${eventInfo}`);
-  console.log(`Event Date: ${eventDate._d}`);
-  console.log(`Event Venue: ${eventVenue}`);
-
   let eventKey = 0;
   console.log(`Upcoming Events: ${upcomingEvents}`);
 
   useEffect(() => {
     setIsLoading(true);
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}api/artists/${userId}`)
-      .then((response) => {
-        setUserName(response.data.name);
-        if (response.data.bannerPicture) {
-          setUserBannerImg(
-            process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture
+    if (eventId.length > 20) {
+      axios
+        .get(`${process.env.REACT_APP_BACKEND_URL}api/artists/${userId}`)
+        .then((response) => {
+          setUserName(response.data.name);
+          if (response.data.bannerPicture) {
+            setUserBannerImg(
+              process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture
+            );
+          } else {
+            setUserBannerImg(undefined);
+          }
+          setUserProfileImg(
+            process.env.REACT_APP_BACKEND_URL + response.data.profilePicture
           );
-        } else {
-          setUserBannerImg(undefined);
-        }
-        setUserProfileImg(
-          process.env.REACT_APP_BACKEND_URL + response.data.profilePicture
-        );
-        setUserUsername(response.data.username);
-        setArtistName(response.data.name);
-        setUpcomingEvents(response.data.upcomingEvents);
-        const event = response.data.upcomingEvents.filter(
-          (upcomingEvent) => upcomingEvent._id === eventId
-        );
-        setEventDate({ _d: event[0].date.toString() });
-        setEventVenue(event[0].venue);
-        setEventInfo(event[0].info);
-        setEventAddress(event[0].address);
-        setEventName(event[0].eventName);
-        setNewEventDate({ _d: event[0].date.toString() });
-        setNewEventVenue(event[0].venue);
-        setNewEventInfo(event[0].info);
-        setNewEventAddress(event[0].address);
-        setNewEventName(event[0].eventName);
-      })
-      .catch((error) => {
-        if (error.request.status === 500) {
-          axios
-            .get(
-              `https://app.ticketmaster.com/discovery/v2/events?apikey=${process.env.REACT_APP_TICKETMASTER_API}&id=${eventId}&locale=*`
-            )
-            .then((response) => {
-              console.log(response);
-              setUserName(
-                response.data._embedded.events[0]._embedded.attractions[0].name
-              );
-              if (
-                response.data._embedded.events[0]._embedded.venues[0].images
-              ) {
-                setUserBannerImg(
-                  response.data._embedded.events[0]._embedded.venues[0]
-                    .images[0].url
-                );
-              } else {
-                setUserBannerImg("");
-              }
-              setUserProfileImg(
-                response.data._embedded.events[0]._embedded.attractions[0].images.find(
-                  (element) => element.ratio === "16_9" && element.height > 150
-                ).url
-              );
-              setUserUsername("");
-              setArtistName(
-                response.data._embedded.events[0]._embedded.attractions[0].name
-              );
-              setEventDate({
-                _d: response.data._embedded.events[0].dates.start.dateTime.toString(),
-              });
-              setEventVenue(
-                response.data._embedded.events[0]._embedded.venues[0].name
-              );
-              if (
-                response.data._embedded.events[0]._embedded.venues[0]
-                  .generalInfo
-              ) {
-                setEventInfo(
-                  response.data._embedded.events[0]._embedded.venues[0]
-                    .generalInfo.generalRule
-                );
-              } else {
-                setEventInfo("Information for this show is unavailable");
-              }
-              if (response.data._embedded.events[0]._embedded.venues[0].state) {
-                setEventAddress(
-                  response.data._embedded.events[0]._embedded.venues[0].address
-                    .line1 +
-                    " " +
-                    response.data._embedded.events[0]._embedded.venues[0].city
-                      .name +
-                    ", " +
-                    response.data._embedded.events[0]._embedded.venues[0].state
-                      .stateCode +
-                    ", " +
-                    response.data._embedded.events[0]._embedded.venues[0]
-                      .country.countryCode
-                );
-              } else {
-                setEventAddress(
-                  response.data._embedded.events[0]._embedded.venues[0].address
-                    .line1 +
-                    " " +
-                    response.data._embedded.events[0]._embedded.venues[0].city
-                      .name +
-                    ", " +
-                    response.data._embedded.events[0]._embedded.venues[0]
-                      .country.countryCode
-                );
-              }
-              setEventName(
-                response.data._embedded.events[0]._embedded.venues[0].name
-              );
-              setNewEventDate({
-                _d: response.data._embedded.events[0].dates.start.dateTime.toString(),
-              });
-              setNewEventVenue(
-                response.data._embedded.events[0]._embedded.venues[0].name
-              );
-              if (
-                response.data._embedded.events[0]._embedded.venues[0]
-                  .generalInfo
-              ) {
-                setNewEventInfo(
-                  response.data._embedded.events[0]._embedded.venues[0]
-                    .generalInfo.generalRule
-                );
-              } else {
-                setNewEventInfo("Information for this show is unavailable");
-              }
-              if (response.data._embedded.events[0]._embedded.venues[0].state) {
-                setNewEventAddress(
-                  response.data._embedded.events[0]._embedded.venues[0].address
-                    .line1 +
-                    " " +
-                    response.data._embedded.events[0]._embedded.venues[0].city
-                      .name +
-                    ", " +
-                    response.data._embedded.events[0]._embedded.venues[0].state
-                      .stateCode +
-                    ", " +
-                    response.data._embedded.events[0]._embedded.venues[0]
-                      .country.countryCode
-                );
-              } else {
-                setNewEventAddress(
-                  response.data._embedded.events[0]._embedded.venues[0].address
-                    .line1 +
-                    " " +
-                    response.data._embedded.events[0]._embedded.venues[0].city
-                      .name +
-                    ", " +
-                    response.data._embedded.events[0]._embedded.venues[0]
-                      .country.countryCode
-                );
-              }
-              setNewEventName(
-                response.data._embedded.events[0]._embedded.venues[0].name
-              );
-              if (
-                response.data._embedded.events[0]._embedded.attractions[0]
-                  .upcomingEvents._total > 0
-              ) {
-                axios
-                  .get(
-                    `https://app.ticketmaster.com/discovery/v2/events?apikey=${process.env.REACT_APP_TICKETMASTER_API}&attractionId=${userId}&locale=*&sort=date,asc`
-                  )
-                  .then((response) => {
-                    const events = response.data._embedded.events;
-                    console.log(events);
-                    setUpcomingEvents(
-                      events.map((event) => {
-                        if (event._embedded.venues[0].state) {
-                          if (event._embedded.venues[0].generalInfo) {
-                            return {
-                              _id: event.id,
-                              eventName: event._embedded.venues[0].name,
-                              date: event.dates.start.dateTime,
-                              startTime: event.dates.start.dateTime,
-                              address:
-                                event._embedded.venues[0].address.line1 +
-                                " " +
-                                event._embedded.venues[0].city.name +
-                                ", " +
-                                event._embedded.venues[0].state.stateCode +
-                                ", " +
-                                event._embedded.venues[0].country.countryCode,
-                              info: event._embedded.venues[0].generalInfo
-                                .generalRule,
-                            };
-                          } else {
-                            return {
-                              _id: event.id,
-                              eventName: event._embedded.venues[0].name,
-                              date: event.dates.start.dateTime,
-                              startTime: event.dates.start.dateTime,
-                              address:
-                                event._embedded.venues[0].address.line1 +
-                                " " +
-                                event._embedded.venues[0].city.name +
-                                ", " +
-                                event._embedded.venues[0].state.stateCode +
-                                ", " +
-                                event._embedded.venues[0].country.countryCode,
-                              info: "Information for this show is unavailable",
-                            };
-                          }
-                        } else {
-                          if (event._embedded.venues[0].generalInfo) {
-                            return {
-                              _id: event.id,
-                              eventName: event._embedded.venues[0].name,
-                              date: event.dates.start.dateTime,
-                              startTime: event.dates.start.dateTime,
-                              address:
-                                event._embedded.venues[0].address.line1 +
-                                " " +
-                                event._embedded.venues[0].city.name +
-                                ", " +
-                                event._embedded.venues[0].country.countryCode,
-                              info: event._embedded.venues[0].generalInfo
-                                .generalRule,
-                            };
-                          } else {
-                            return {
-                              _id: event.id,
-                              eventName: event._embedded.venues[0].name,
-                              date: event.dates.start.dateTime,
-                              startTime: event.dates.start.dateTime,
-                              address:
-                                event._embedded.venues[0].address.line1 +
-                                " " +
-                                event._embedded.venues[0].city.name +
-                                ", " +
-                                event._embedded.venues[0].country.countryCode,
-                              info: event._embedded.venues[0].generalInfo,
-                            };
-                          }
-                        }
-                      })
-                    );
+          setUserUsername(response.data.username);
+          setArtistName(response.data.name);
+          setUpcomingEvents(response.data.upcomingEvents);
+          console.log(response.data.upcomingEvents[0]._id);
+          const event = response.data.upcomingEvents.filter(
+            (upcomingEvent) => upcomingEvent._id === eventId
+          );
+          setEventDate({ _d: event[0].date.toString() });
+          setEventVenue(event[0].venue);
+          setEventInfo(event[0].info);
+          setEventAddress(event[0].address);
+          setEventName(event[0].eventName);
+          setNewEventDate({ _d: event[0].date.toString() });
+          setNewEventVenue(event[0].venue);
+          setNewEventInfo(event[0].info);
+          setNewEventAddress(event[0].address);
+          setNewEventName(event[0].eventName);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      axios
+        .get(
+          `https://app.ticketmaster.com/discovery/v2/events?apikey=${process.env.REACT_APP_TICKETMASTER_API}&id=${eventId}&locale=*`
+        )
+        .then((response) => {
+          console.log(response);
+          setUserName(
+            response.data._embedded.events[0]._embedded.attractions[0].name
+          );
+          if (response.data._embedded.events[0]._embedded.venues[0].images) {
+            setUserBannerImg(
+              response.data._embedded.events[0]._embedded.venues[0].images[0]
+                .url
+            );
+          } else {
+            setUserBannerImg("");
+          }
+          setUserProfileImg(
+            response.data._embedded.events[0]._embedded.attractions[0].images.find(
+              (element) => element.ratio === "16_9" && element.height > 150
+            ).url
+          );
+          setUserUsername("");
+          setArtistName(
+            response.data._embedded.events[0]._embedded.attractions[0].name
+          );
+          setEventDate({
+            _d: response.data._embedded.events[0].dates.start.dateTime.toString(),
+          });
+          setEventVenue(
+            response.data._embedded.events[0]._embedded.venues[0].name
+          );
+          if (
+            response.data._embedded.events[0]._embedded.venues[0].generalInfo
+          ) {
+            setEventInfo(
+              response.data._embedded.events[0]._embedded.venues[0].generalInfo
+                .generalRule
+            );
+          } else {
+            setEventInfo("Information for this show is unavailable");
+          }
+          if (response.data._embedded.events[0]._embedded.venues[0].state) {
+            setEventAddress(
+              response.data._embedded.events[0]._embedded.venues[0].address
+                .line1 +
+                " " +
+                response.data._embedded.events[0]._embedded.venues[0].city
+                  .name +
+                ", " +
+                response.data._embedded.events[0]._embedded.venues[0].state
+                  .stateCode +
+                ", " +
+                response.data._embedded.events[0]._embedded.venues[0].country
+                  .countryCode
+            );
+          } else {
+            setEventAddress(
+              response.data._embedded.events[0]._embedded.venues[0].address
+                .line1 +
+                " " +
+                response.data._embedded.events[0]._embedded.venues[0].city
+                  .name +
+                ", " +
+                response.data._embedded.events[0]._embedded.venues[0].country
+                  .countryCode
+            );
+          }
+          setEventName(
+            response.data._embedded.events[0]._embedded.venues[0].name
+          );
+          setNewEventDate({
+            _d: response.data._embedded.events[0].dates.start.dateTime.toString(),
+          });
+          setNewEventVenue(
+            response.data._embedded.events[0]._embedded.venues[0].name
+          );
+          if (
+            response.data._embedded.events[0]._embedded.venues[0].generalInfo
+          ) {
+            setNewEventInfo(
+              response.data._embedded.events[0]._embedded.venues[0].generalInfo
+                .generalRule
+            );
+          } else {
+            setNewEventInfo("Information for this show is unavailable");
+          }
+          if (response.data._embedded.events[0]._embedded.venues[0].state) {
+            setNewEventAddress(
+              response.data._embedded.events[0]._embedded.venues[0].address
+                .line1 +
+                " " +
+                response.data._embedded.events[0]._embedded.venues[0].city
+                  .name +
+                ", " +
+                response.data._embedded.events[0]._embedded.venues[0].state
+                  .stateCode +
+                ", " +
+                response.data._embedded.events[0]._embedded.venues[0].country
+                  .countryCode
+            );
+          } else {
+            setNewEventAddress(
+              response.data._embedded.events[0]._embedded.venues[0].address
+                .line1 +
+                " " +
+                response.data._embedded.events[0]._embedded.venues[0].city
+                  .name +
+                ", " +
+                response.data._embedded.events[0]._embedded.venues[0].country
+                  .countryCode
+            );
+          }
+          setNewEventName(
+            response.data._embedded.events[0]._embedded.venues[0].name
+          );
+          if (
+            response.data._embedded.events[0]._embedded.attractions[0]
+              .upcomingEvents._total > 0
+          ) {
+            axios
+              .get(
+                `https://app.ticketmaster.com/discovery/v2/events?apikey=${process.env.REACT_APP_TICKETMASTER_API}&attractionId=${userId}&locale=*&sort=date,asc`
+              )
+              .then((response) => {
+                const events = response.data._embedded.events;
+                console.log(events);
+                setUpcomingEvents(
+                  events.map((event) => {
+                    if (event._embedded.venues[0].state) {
+                      if (event._embedded.venues[0].generalInfo) {
+                        return {
+                          _id: event.id,
+                          eventName: event._embedded.venues[0].name,
+                          date: event.dates.start.dateTime,
+                          startTime: event.dates.start.dateTime,
+                          address:
+                            event._embedded.venues[0].address.line1 +
+                            " " +
+                            event._embedded.venues[0].city.name +
+                            ", " +
+                            event._embedded.venues[0].state.stateCode +
+                            ", " +
+                            event._embedded.venues[0].country.countryCode,
+                          info: event._embedded.venues[0].generalInfo
+                            .generalRule,
+                        };
+                      } else {
+                        return {
+                          _id: event.id,
+                          eventName: event._embedded.venues[0].name,
+                          date: event.dates.start.dateTime,
+                          startTime: event.dates.start.dateTime,
+                          address:
+                            event._embedded.venues[0].address.line1 +
+                            " " +
+                            event._embedded.venues[0].city.name +
+                            ", " +
+                            event._embedded.venues[0].state.stateCode +
+                            ", " +
+                            event._embedded.venues[0].country.countryCode,
+                          info: "Information for this show is unavailable",
+                        };
+                      }
+                    } else {
+                      if (event._embedded.venues[0].generalInfo) {
+                        return {
+                          _id: event.id,
+                          eventName: event._embedded.venues[0].name,
+                          date: event.dates.start.dateTime,
+                          startTime: event.dates.start.dateTime,
+                          address:
+                            event._embedded.venues[0].address.line1 +
+                            " " +
+                            event._embedded.venues[0].city.name +
+                            ", " +
+                            event._embedded.venues[0].country.countryCode,
+                          info: event._embedded.venues[0].generalInfo
+                            .generalRule,
+                        };
+                      } else {
+                        return {
+                          _id: event.id,
+                          eventName: event._embedded.venues[0].name,
+                          date: event.dates.start.dateTime,
+                          startTime: event.dates.start.dateTime,
+                          address:
+                            event._embedded.venues[0].address.line1 +
+                            " " +
+                            event._embedded.venues[0].city.name +
+                            ", " +
+                            event._embedded.venues[0].country.countryCode,
+                          info: event._embedded.venues[0].generalInfo,
+                        };
+                      }
+                    }
                   })
-                  .catch((error) => {
-                    console.log(error);
-                  });
-              } else {
-                setUpcomingEvents([]);
-              }
-            })
-            .catch((error) => {
-              console.log(error);
-            });
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+                );
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          } else {
+            setUpcomingEvents([]);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
     if (id) {
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}api/artists/${id}`)
@@ -380,60 +363,20 @@ const EventsPage = () => {
 
   const handleEventClick = async (e) => {
     e.preventDefault();
-    console.log(e.target);
     let eventInfo = "";
     let plannedEvents = currentSavedEvents;
-    const band = JSON.parse(e.target.title);
-    if (e.target.id) {
-      const event = JSON.parse(e.target.id);
-      eventInfo = {
-        id: event._id,
-        bandId: band._id,
-        ticketUrl: event.ticketUrl,
-        profilePicture: band.profilePicture,
-        artistName: band.name,
-        date: event.date,
-        startTime: event.startTime,
-        venue: event.venue,
-        address: event.address,
-        info: event.info,
-        artistType: e.target.getAttribute("data-artistType"),
-      };
-    } else {
-      eventInfo = {
-        id: band.id,
-        bandId: band._embedded.attractions[0].id,
-        ticketUrl: band.ticketUrl,
-        profilePicture: band.images.find(
-          (element) => element.ratio === "16_9" && element.height > 150
-        ).url,
-        artistName: band._embedded.attractions
-          ? band._embedded.attractions[0].name
-          : band.name,
-        date: band.dates.start.dateTime,
-        startTime: band.dates.start.dateTime,
-        venue: band._embedded.venues[0].name,
-        address: band._embedded.venues[0].state
-          ? band._embedded.venues[0].address.line1 +
-            " " +
-            band._embedded.venues[0].city.name +
-            ", " +
-            band._embedded.venues[0].state.name +
-            " " +
-            band._embedded.venues[0].postalCode +
-            ", " +
-            band._embedded.venues[0].country.name
-          : band._embedded.venues[0].address.line1 +
-            " " +
-            band._embedded.venues[0].city.name +
-            ", " +
-            band._embedded.venues[0].postalCode +
-            ", " +
-            band._embedded.venues[0].country.name,
-        info: band.info,
-      };
-    }
-    console.log(eventInfo);
+    const event = JSON.parse(e.target.getAttribute("data-eventInformation"));
+    eventInfo = {
+      eventId: event.eventId,
+      artistId: event.artistId,
+      profilePicture: event.profilePicture,
+      artistName: event.artistName,
+      date: event.date,
+      startTime: event.startTime,
+      address: event.address,
+      info: event.info,
+      artistType: e.target.getAttribute("data-artistType"),
+    };
     if (e.target.value === "Save Event") {
       if (currentSavedEvents.length > 0) {
         setCurrentSavedEvents([...currentSavedEvents, eventInfo]);
@@ -444,10 +387,12 @@ const EventsPage = () => {
       }
     } else {
       setCurrentSavedEvents(
-        currentSavedEvents.filter((event) => event.id !== eventInfo.id)
+        currentSavedEvents.filter(
+          (event) => event.eventId !== eventInfo.eventId
+        )
       );
       plannedEvents = currentSavedEvents.filter(
-        (event) => event.id !== eventInfo.id
+        (event) => event.eventId !== eventInfo.eventId
       );
     }
     if (id) {
@@ -475,7 +420,7 @@ const EventsPage = () => {
         `${process.env.REACT_APP_BACKEND_URL}api/user/${userId}/upcomingEvent/${eventId}`
       )
       .then((response) => {
-        console.log(response.data); // log the edited event object
+        console.log(response.data); // log the deleted event object
         setDeleteEvent(true);
         setTimeout(() => {
           navigate(`/userprofile/${userId}`);

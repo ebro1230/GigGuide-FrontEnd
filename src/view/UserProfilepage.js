@@ -1,11 +1,9 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
-import { Modal, Button, ModalBody } from "react-bootstrap";
+import { useParams } from "react-router";
 import FanProfilepage from "./FanProfilepage";
 import ArtistProfilepage from "./ArtistProfilepage";
 import LoadingIndicator from "../Components/LoadingIndicator";
-import PlannedEvents from "../Components/PlannedEvents";
 
 const UserProfilepage = () => {
   const { userId } = useParams();
@@ -15,7 +13,6 @@ const UserProfilepage = () => {
   const [currentFaveArtists, setCurrentFaveArtists] = useState([]);
   const [currentSavedEvents, setCurrentSavedEvents] = useState([]);
   const [isTouring, setIsTouring] = useState(false);
-  const navigate = useNavigate();
 
   const handleHeartClick = async (e) => {
     e.preventDefault();
@@ -71,21 +68,18 @@ const UserProfilepage = () => {
     e.preventDefault();
     let eventInfo = "";
     let plannedEvents = currentSavedEvents;
-    const event = JSON.parse(e.target.id);
+    const event = JSON.parse(e.target.getAttribute("data-eventInformation"));
     eventInfo = {
-      id: event.id,
-      bandId: event.bandId,
-      ticketUrl: event.ticketUrl,
+      eventId: event.eventId,
+      artistId: event.artistId,
       profilePicture: event.profilePicture,
       artistName: event.artistName,
       date: event.date,
       startTime: event.startTime,
-      venue: event.venue,
       address: event.address,
       info: event.info,
-      artistType: event.artistType,
+      artistType: e.target.getAttribute("data-artistType"),
     };
-    console.log(eventInfo);
     if (e.target.value === "Save Event") {
       if (currentSavedEvents.length > 0) {
         setCurrentSavedEvents([...currentSavedEvents, eventInfo]);
@@ -96,13 +90,13 @@ const UserProfilepage = () => {
       }
     } else {
       setCurrentSavedEvents(
-        currentSavedEvents.filter((event) => event.id !== eventInfo.id)
+        currentSavedEvents.filter(
+          (event) => event.eventId !== eventInfo.eventId
+        )
       );
       plannedEvents = currentSavedEvents.filter(
-        (event) => event.id !== eventInfo.id
+        (event) => event.eventId !== eventInfo.eventId
       );
-      console.log(event.id);
-      console.log(eventInfo.id);
     }
     if (id) {
       const payload = { plannedEvents };
@@ -174,7 +168,9 @@ const UserProfilepage = () => {
                 setUser({
                   userId: userId,
                   userUsername: "",
-                  userName: user._embedded.attractions[0].name,
+                  userName: user._embedded.attractions
+                    ? user._embedded.attractions[0].name
+                    : user.name,
                   userAge: null,
                   userCity: "",
                   userCountry: "",
@@ -186,74 +182,36 @@ const UserProfilepage = () => {
                   favouriteArtists: [],
                   bio: "Bio Unavailable",
                   songsList: [],
-                  upcomingEvents: events.map((event) => {
-                    if (event._embedded.venues[0].state) {
-                      if (event._embedded.venues[0].generalInfo) {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].state.stateCode +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: event._embedded.venues[0].generalInfo
-                            .generalRule,
-                        };
-                      } else {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].state.stateCode +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: "Information for this show is unavailable",
-                        };
-                      }
-                    } else {
-                      if (event._embedded.venues[0].generalInfo) {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: event._embedded.venues[0].generalInfo
-                            .generalRule,
-                        };
-                      } else {
-                        return {
-                          _id: event.id,
-                          eventName: event._embedded.venues[0].name,
-                          date: event.dates.start.dateTime,
-                          startTime: event.dates.start.dateTime,
-                          address:
-                            event._embedded.venues[0].address.line1 +
-                            " " +
-                            event._embedded.venues[0].city.name +
-                            ", " +
-                            event._embedded.venues[0].country.countryCode,
-                          info: event._embedded.venues[0].generalInfo,
-                        };
-                      }
-                    }
+                  upcomingEvents: events.map((band) => {
+                    return {
+                      artistId: band._embedded.attractions
+                        ? band._embedded.attractions[0].id
+                        : band.id,
+                      eventId: band.id,
+                      profilePicture: band.images.find(
+                        (element) =>
+                          element.ratio === "16_9" && element.height > 150
+                      ).url,
+                      artistName: band._embedded.attractions
+                        ? band._embedded.attractions[0].name
+                        : band.name,
+                      eventName: band._embedded.venues
+                        ? `at ${band._embedded.venues[0].name}`
+                        : "",
+                      date: band.dates.start.dateTime,
+                      startTime: band.dates.start.dateTime,
+                      info: band._embedded.venues
+                        ? band._embedded.venues[0].generalInfo
+                          ? band._embedded.venues[0].generalInfo.generalRule
+                          : ""
+                        : "",
+                      address: band._embedded.venues
+                        ? band._embedded.venues[0].state
+                          ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
+                          : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                        : "",
+                      artistType: "mainstream",
+                    };
                   }),
                   plannedEvents: [],
                   userType: "Artist",
@@ -266,13 +224,18 @@ const UserProfilepage = () => {
             setUser({
               userId: userId,
               userUsername: "",
-              userName: user._embedded.attractions[0].name,
+              userName: user._embedded.attractions
+                ? user._embedded.attractions[0].name
+                : user.name,
               userAge: null,
               userCity: "",
               userCountry: "",
-              userProfileImg: user._embedded.attractions[0].images.find(
-                (element) => element.ratio === "16_9" && element.height > 150
-              ).url,
+              userProfileImg: user._embedded.attractions
+                ? user._embedded.attractions[0].images.find(
+                    (element) =>
+                      element.ratio === "16_9" && element.height > 150
+                  ).url
+                : "",
               userBannerImg: "",
               favouriteArtists: [],
               bio: "Bio Unavailable",

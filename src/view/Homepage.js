@@ -28,6 +28,9 @@ const HomePage = () => {
   const [newCountry, setNewCountry] = useState(0);
   const [currentFaveArtists, setCurrentFaveArtists] = useState([]);
   const [currentSavedEvents, setCurrentSavedEvents] = useState([]);
+  const [upcomingLocalEvents, setUpcomingLocalEvents] = useState([]);
+  const [upcomingMainstreamEvents, setUpcomingMainstreamEvents] = useState([]);
+  let localEvents = [];
 
   const id = sessionStorage.getItem("userId");
   const navigation = useNavigate();
@@ -105,60 +108,20 @@ const HomePage = () => {
 
   const handleEventClick = async (e) => {
     e.preventDefault();
-    console.log(e.target);
     let eventInfo = "";
     let plannedEvents = currentSavedEvents;
-    const band = JSON.parse(e.target.title);
-    if (e.target.id) {
-      const event = JSON.parse(e.target.id);
-      eventInfo = {
-        id: event._id,
-        bandId: band._id,
-        ticketUrl: event.ticketUrl,
-        profilePicture: process.env.REACT_APP_BACKEND_URL + band.profilePicture,
-        artistName: band.name,
-        date: event.date,
-        startTime: event.startTime,
-        venue: event.venue,
-        address: event.address,
-        info: event.info,
-        artistType: e.target.getAttribute("data-artistType"),
-      };
-    } else {
-      eventInfo = {
-        id: band.id,
-        bandId: band._embedded.attractions[0].id,
-        ticketUrl: band.ticketUrl,
-        profilePicture: band.images.find(
-          (element) => element.ratio === "16_9" && element.height > 150
-        ).url,
-        artistName: band._embedded.attractions
-          ? band._embedded.attractions[0].name
-          : band.name,
-        date: band.dates.start.dateTime,
-        startTime: band.dates.start.dateTime,
-        venue: band._embedded.venues[0].name,
-        address: band._embedded.venues[0].state
-          ? band._embedded.venues[0].address.line1 +
-            " " +
-            band._embedded.venues[0].city.name +
-            ", " +
-            band._embedded.venues[0].state.name +
-            " " +
-            band._embedded.venues[0].postalCode +
-            ", " +
-            band._embedded.venues[0].country.name
-          : band._embedded.venues[0].address.line1 +
-            " " +
-            band._embedded.venues[0].city.name +
-            ", " +
-            band._embedded.venues[0].postalCode +
-            ", " +
-            band._embedded.venues[0].country.name,
-        info: band.info,
-      };
-    }
-    console.log(eventInfo);
+    const event = JSON.parse(e.target.getAttribute("data-eventInformation"));
+    eventInfo = {
+      eventId: event.eventId,
+      artistId: event.artistId,
+      profilePicture: event.profilePicture,
+      artistName: event.artistName,
+      date: event.date,
+      startTime: event.startTime,
+      address: event.address,
+      info: event.info,
+      artistType: e.target.getAttribute("data-artistType"),
+    };
     if (e.target.value === "Save Event") {
       if (currentSavedEvents.length > 0) {
         setCurrentSavedEvents([...currentSavedEvents, eventInfo]);
@@ -169,10 +132,12 @@ const HomePage = () => {
       }
     } else {
       setCurrentSavedEvents(
-        currentSavedEvents.filter((event) => event.id !== eventInfo.id)
+        currentSavedEvents.filter(
+          (event) => event.eventId !== eventInfo.eventId
+        )
       );
       plannedEvents = currentSavedEvents.filter(
-        (event) => event.id !== eventInfo.id
+        (event) => event.eventId !== eventInfo.eventId
       );
     }
     if (id) {
@@ -227,6 +192,39 @@ const HomePage = () => {
             )
             .then((response) => {
               setBands(response.data._embedded.events);
+              setUpcomingMainstreamEvents(
+                response.data._embedded.events.map((band) => {
+                  return {
+                    artistId: band._embedded.attractions
+                      ? band._embedded.attractions[0].id
+                      : band.id,
+                    eventId: band.id,
+                    profilePicture: band.images.find(
+                      (element) =>
+                        element.ratio === "16_9" && element.height > 150
+                    ).url,
+                    artistName: band._embedded.attractions
+                      ? band._embedded.attractions[0].name
+                      : band.name,
+                    eventName: band._embedded.venues
+                      ? `at ${band._embedded.venues[0].name}`
+                      : "",
+                    date: band.dates.start.dateTime,
+                    startTime: band.dates.start.dateTime,
+                    info: band._embedded.venues
+                      ? band._embedded.venues[0].generalInfo
+                        ? band._embedded.venues[0].generalInfo.generalRule
+                        : ""
+                      : "",
+                    address: band._embedded.venues
+                      ? band._embedded.venues[0].state
+                        ? `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].city.name} ${band._embedded.venues[0].postalCode}, ${band._embedded.venues[0].state.name}, ${band._embedded.venues[0].country.name}`
+                        : `${band._embedded.venues[0].address.line1}, ${band._embedded.venues[0].postalCode} ${band._embedded.venues[0].city.name}, ${band._embedded.venues[0].country.name}`
+                      : "",
+                    artistType: "mainstream",
+                  };
+                })
+              );
             })
             .catch((error) => {
               console.log(error);
@@ -234,10 +232,37 @@ const HomePage = () => {
           if (response.data.favouriteGenre.length) {
             axios
               .get(
-                `${process.env.REACT_APP_BACKEND_URL}api/artists/0/${response.data.country}/${response.data.city}/0`
+                `${process.env.REACT_APP_BACKEND_URL}api/artists/0/${response.data.country}/${response.data.city}/${response.data.favouriteGenre}`
               )
               .then((response) => {
                 setLocalBands(response.data);
+                console.log(response.data);
+                response.data.map((band) => {
+                  console.log(band);
+                  return band.upcomingEvents
+                    ? band.upcomingEvents.length
+                      ? band.upcomingEvents.forEach((event) => {
+                          console.log(event);
+                          localEvents = [
+                            ...localEvents,
+                            {
+                              artistId: band._id,
+                              eventId: event._id,
+                              profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
+                              artistName: band.name,
+                              eventName: event.eventName,
+                              date: event.date,
+                              startTime: event.startTime,
+                              info: event.info,
+                              address: event.address,
+                              artistType: "local",
+                            },
+                          ];
+                        })
+                      : null
+                    : null;
+                });
+                setUpcomingLocalEvents(localEvents);
               })
               .catch((error) => {
                 console.log(error);
@@ -249,6 +274,33 @@ const HomePage = () => {
               )
               .then((response) => {
                 setLocalBands(response.data);
+                console.log(response.data);
+                response.data.map((band) => {
+                  console.log(band);
+                  return band.upcomingEvents
+                    ? band.upcomingEvents.length
+                      ? band.upcomingEvents.forEach((event) => {
+                          console.log(event);
+                          localEvents = [
+                            ...localEvents,
+                            {
+                              artistId: band._id,
+                              eventId: event._id,
+                              profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
+                              artistName: band.name,
+                              eventName: event.eventName,
+                              date: event.date,
+                              startTime: event.startTime,
+                              info: event.info,
+                              address: event.address,
+                              artistType: "local",
+                            },
+                          ];
+                        })
+                      : null
+                    : null;
+                });
+                setUpcomingLocalEvents(localEvents);
               })
               .catch((error) => {
                 console.log(error);
@@ -278,7 +330,6 @@ const HomePage = () => {
       setNewGenre(0);
     }
   }, [newSearch, newCity, newCountry, newGenre]);
-  console.log(localBands);
   return (
     <div className="landingpage-container">
       <br />
@@ -330,7 +381,7 @@ const HomePage = () => {
               <h5>{`Upcoming Shows:`}</h5>
             )}
             <Event
-              bands={bands}
+              upcomingEvents={upcomingMainstreamEvents}
               type="non-local"
               onEventClick={handleEventClick}
               currentSavedEvents={currentSavedEvents}
@@ -376,7 +427,7 @@ const HomePage = () => {
             )}
             <Event
               className="upcoming-shows"
-              bands={localBands}
+              upcomingEvents={upcomingLocalEvents}
               type="local"
               onEventClick={handleEventClick}
               currentSavedEvents={currentSavedEvents}

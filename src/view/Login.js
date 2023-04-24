@@ -10,14 +10,16 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [success, setSuccess] = useState(false);
+  const [passwordIncorrect, setPasswordIncorrect] = useState(false);
+  const [passwordInformation, setPasswordInformation] = useState(false);
+  const [usernameNotFound, setUsernameNotFound] = useState(false);
   const [failure, setFailure] = useState(false);
   const id = sessionStorage.getItem("userId");
-  const navigation = useNavigate();
-  console.log(id);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
-      navigation("/homepage");
+      navigate("/homepage");
     }
   }, [id]);
   const handleLogin = async (e) => {
@@ -38,26 +40,33 @@ const Login = () => {
         sessionStorage.setItem("userId", id);
         setSuccess(true);
         setTimeout(() => {
-          navigation("/homepage");
+          navigate("/homepage");
         }, 3000);
       } else {
         const errorData = response.data;
-        console.log(errorData);
+        console.log(errorData.response.data);
         setFailure(true);
         setTimeout(() => {
-          navigation("/login");
+          navigate("/login");
         }, 3000);
         throw new Error(errorData.message);
       }
     } catch (err) {
-      setFailure(true);
+      if (err.response.data === "username not found") {
+        setUsernameNotFound(true);
+      }
+      if (err.response.data === "password incorrect") {
+        setPasswordIncorrect(true);
+        setPasswordInformation(true);
+      }
       setTimeout(() => {
-        setFailure(false);
+        setPasswordIncorrect(false);
+        setUsernameNotFound(false);
       }, 3000);
+      console.log(err);
       throw err;
     }
   };
-  console.log(failure);
   return success ? (
     <Modal show={true} centered>
       <Modal.Header>
@@ -68,6 +77,18 @@ const Login = () => {
     <Modal show={true} centered>
       <Modal.Header>
         <Modal.Title>Login Failed!</Modal.Title>
+      </Modal.Header>
+    </Modal>
+  ) : usernameNotFound ? (
+    <Modal show={true} centered>
+      <Modal.Header>
+        <Modal.Title>Username Incorrect</Modal.Title>
+      </Modal.Header>
+    </Modal>
+  ) : passwordIncorrect ? (
+    <Modal show={true} centered>
+      <Modal.Header>
+        <Modal.Title>Password Incorrect</Modal.Title>
       </Modal.Header>
     </Modal>
   ) : (
@@ -94,6 +115,16 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
         </Form.Group>
+        {passwordInformation ? (
+          <div className="passwordInfo col-9 col-sm-8 col-md-8 col-lg-6 col-xl-5">
+            <h6>Password must contain at least:</h6>
+            <p>8 characters</p>
+            <p>1 uppercase letter</p>
+            <p>1 lowercase letter</p>
+            <p>1 number</p>
+            <p>1 special character</p>
+          </div>
+        ) : null}
 
         <Button variant="primary" type="submit">
           Log in

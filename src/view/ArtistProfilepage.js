@@ -15,9 +15,10 @@ import Badge from "react-bootstrap/Badge";
 import ListGroup from "react-bootstrap/ListGroup";
 import { Modal, Form, Nav } from "react-bootstrap";
 import Datetime from "react-datetime";
+import Event from "../Components/Event";
 
-const ArtistProfilepage = (userData) => {
-  const user = userData.userData;
+const ArtistProfilepage = (props) => {
+  const user = props.userData;
   const navigate = useNavigate();
   const {
     userId,
@@ -35,8 +36,8 @@ const ArtistProfilepage = (userData) => {
     plannedEvents,
     userType,
   } = user;
-  const currentFaveArtists = userData.currentFaveArtists;
-  const currentSavedEvents = userData.currentSavedEvents;
+  const currentFaveArtists = props.currentFaveArtists;
+  const currentSavedEvents = props.currentSavedEvents;
   const id = sessionStorage.getItem("userId");
   let eventKey = 0;
 
@@ -128,12 +129,15 @@ const ArtistProfilepage = (userData) => {
   const handleEventSubmit = (e) => {
     e.preventDefault();
     const newEvent = {
-      eventName,
+      artistId: userId,
+      profilePicture: userProfileImg,
       artistName: userName,
+      eventName: eventName,
       date: new Date(eventDate._d).toISOString(),
-      venue: eventVenue,
-      address: eventAddress,
+      startTime: new Date(eventDate._d).toISOString(),
       info: eventInfo,
+      address: eventAddress,
+      artistType: "local",
     };
 
     const headers = { "Content-Type": "application/json" };
@@ -214,10 +218,10 @@ const ArtistProfilepage = (userData) => {
                         src={`${process.env.REACT_APP_BACKEND_URL}profile-pics/Filled.png`}
                         alt="Filled Heart"
                         className="favorite"
-                        onClick={userData.onHeartClick}
+                        onClick={props.onHeartClick}
                         id={userId}
                         title={userName}
-                        data-touring={userData.isTouring}
+                        data-touring={props.isTouring}
                         pic={userProfileImg}
                       ></Image>
                     ) : (
@@ -226,10 +230,10 @@ const ArtistProfilepage = (userData) => {
                         src={`${process.env.REACT_APP_BACKEND_URL}profile-pics/Outline.png`}
                         alt="Heart Outline"
                         className="favorite"
-                        onClick={userData.onHeartClick}
+                        onClick={props.onHeartClick}
                         id={userId}
                         title={userName}
-                        data-touring={userData.isTouring}
+                        data-touring={props.isTouring}
                         pic={userProfileImg}
                       ></Image>
                     )
@@ -239,10 +243,10 @@ const ArtistProfilepage = (userData) => {
                       src={`${process.env.REACT_APP_BACKEND_URL}profile-pics/Outline.png`}
                       alt="Heart Outline"
                       className="favorite"
-                      onClick={userData.onHeartClick}
+                      onClick={props.onHeartClick}
                       id={userId}
                       title={userName}
-                      data-touring={userData.isTouring}
+                      data-touring={props.isTouring}
                       pic={userProfileImg}
                     ></Image>
                   )
@@ -252,105 +256,52 @@ const ArtistProfilepage = (userData) => {
           </Row>
         </article>
       </section>
-      <section className="artist-bio">
-        <p className="bio-title">{userName} Biography:</p>
-        <div className="bio-div">
-          {isEditMode ? (
-            <InputGroup>
-              <FormControl
-                as="textarea"
-                rows={1}
-                value={content}
-                onChange={handleContentChange}
-                className="bio-textarea"
-              />
-              <Button
-                className="modal-submit-button bio"
-                onClick={handleUpdateButtonClick}
-              >
-                Update
-              </Button>
-            </InputGroup>
-          ) : (
-            <>
-              {content === "" ? <p>{"No content yet"}</p> : <p>{content}</p>}
-              {id === userId ? (
+      {userId.length > 20 ? (
+        <section className="artist-bio">
+          <p className="bio-title">{userName} Biography:</p>
+          <div className="bio-div">
+            {isEditMode ? (
+              <InputGroup>
+                <FormControl
+                  as="textarea"
+                  rows={1}
+                  value={content}
+                  onChange={handleContentChange}
+                  className="bio-textarea"
+                />
                 <Button
-                  className="edit-bio-button"
-                  onClick={() => handleEditButtonClick()}
+                  className="modal-submit-button bio"
+                  onClick={handleUpdateButtonClick}
                 >
-                  Edit
+                  Update
                 </Button>
-              ) : null}
-            </>
-          )}
-        </div>
-      </section>
+              </InputGroup>
+            ) : (
+              <>
+                {content === "" ? <p>{"No content yet"}</p> : <p>{content}</p>}
+                {id === userId ? (
+                  <Button
+                    className="edit-bio-button"
+                    onClick={() => handleEditButtonClick()}
+                  >
+                    Edit
+                  </Button>
+                ) : null}
+              </>
+            )}
+          </div>
+        </section>
+      ) : null}
       <section className="events-and-fav-artist-contaiener">
         <article className="favourite-artists-events">
           <p className="event-list-title">{userName} Upcoming Shows:</p>
-          <Accordion className="accordion">
-            {upcomingEvents.length ? (
-              upcomingEvents.map((event) => {
-                eventKey++;
-                return (
-                  <AccordionItem className="AcordionItem" eventKey={eventKey}>
-                    <AccordionHeader className="row">
-                      <div className="col-5 col-sm-4 col-md-3 col-lg-2">
-                        <NavLink to={`/${userId}/event/${event._id}`}>
-                          <Figure>
-                            <Figure.Image
-                              className="event-img"
-                              width={"100%"}
-                              src={userProfileImg}
-                              alt="Artist Image"
-                            />
-                          </Figure>
-                        </NavLink>
-                      </div>
-                      <div className="col eventTitle">
-                        <h2>
-                          {userName} at {event.eventName}
-                        </h2>
-                        <h3>
-                          {new Date(event.date).toLocaleDateString("en-US", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                          ,{" "}
-                          {new Date(event.startTime).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
-                        </h3>
-                      </div>
-                    </AccordionHeader>
-                    <Accordion.Body>
-                      <NavLink to={`/${userId}/event/${event._id}`}>
-                        <div className="row">
-                          <p>{event.venue} </p>
-                          <p className="venueAddress">{event.address}</p>
-                        </div>
-                        <div className="row">
-                          <p className="eventInfo">{event.info}</p>
-                        </div>
-                      </NavLink>
-                      <div className="col-5 col-sm-3 saveEventdiv"></div>
-                    </Accordion.Body>
-                  </AccordionItem>
-                );
-              })
-            ) : (
-              <div className="noShowsdiv">
-                <h6>No Upcoming Shows</h6>
-              </div>
-            )}
-          </Accordion>
+          <Event
+            className="upcoming-shows"
+            upcomingEvents={upcomingEvents}
+            type="local"
+            onEventClick={props.onEventClick}
+            currentSavedEvents={currentSavedEvents}
+          />
           {id === userId ? (
             <Button
               className="create-event-button"
@@ -423,111 +374,119 @@ const ArtistProfilepage = (userData) => {
           </Modal>
         </article>
       </section>
-      <section className="artist-songs-section">
-        <p className="song-list-title">{userName}, songs:</p>
-        <article className="songs-container">
-          {songsList.length ? (
-            <ListGroup as="ol" numbered>
-              {songsList.map((song) => {
-                return (
-                  <ListGroup.Item
-                    as="li"
-                    className="d-flex justify-content-between align-items-start"
-                  >
-                    <div className="ms-2 me-auto">
-                      <div className="fw-bold">{song.name}</div>
-                      Release date:{" "}
-                      {new Date(song.releaseDate).toLocaleDateString("en-US", {
-                        weekday: "long",
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </div>
-                    <Badge bg="primary" pill>
-                      Song duration: {song.duration}
-                    </Badge>
-                  </ListGroup.Item>
-                );
-              })}
-            </ListGroup>
-          ) : (
-            <div className="noShowsdiv">
-              <h6>No Songs Available</h6>
-            </div>
-          )}
-          {id === userId ? (
-            <Button
-              className="add-song-button"
-              onClick={() => setShowSongsModal(true)}
+      {userId.length > 20 ? (
+        <section className="artist-songs-section">
+          <p className="song-list-title">{userName}, songs:</p>
+          <article className="songs-container">
+            {songsList.length ? (
+              <ListGroup as="ol" numbered>
+                {songsList.map((song) => {
+                  return (
+                    <ListGroup.Item
+                      as="li"
+                      className="d-flex justify-content-between align-items-start"
+                    >
+                      <div className="ms-2 me-auto">
+                        <div className="fw-bold">{song.name}</div>
+                        Release date:{" "}
+                        {new Date(song.releaseDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </div>
+                      <Badge bg="primary" pill>
+                        Song duration: {song.duration}
+                      </Badge>
+                    </ListGroup.Item>
+                  );
+                })}
+              </ListGroup>
+            ) : (
+              <div className="noShowsdiv">
+                <h6>No Songs Available</h6>
+              </div>
+            )}
+            {id === userId ? (
+              <Button
+                className="add-song-button"
+                onClick={() => setShowSongsModal(true)}
+              >
+                Add New Song
+              </Button>
+            ) : null}
+            <Modal
+              show={showSongsModal}
+              onHide={() => setShowSongsModal(false)}
             >
-              Add New Song
-            </Button>
-          ) : null}
-          <Modal show={showSongsModal} onHide={() => setShowSongsModal(false)}>
-            <Modal.Header closeButton>
-              <Modal.Title>Add New Song</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form onSubmit={handleFormSubmit}>
-                <Form.Group controlId="songName">
-                  <Form.Label>Song Name*</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={newSong.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group controlId="songDuration">
-                  <Form.Label>Song Duration</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="duration"
-                    value={newSong.duration}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group controlId="songUrl">
-                  <Form.Label>Song URL(optional)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="url"
-                    value={newSong.url}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group controlId="songReleaseDate">
-                  <Form.Label>Release Date</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="releaseDate"
-                    value={newSong.releaseDate}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group controlId="songAlbum">
-                  <Form.Label>Album(optional)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="album"
-                    value={newSong.album}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-                <Button className="modal-submit-button" type="submit">
-                  Add Song
-                </Button>
-              </Form>
-            </Modal.Body>
-          </Modal>
-        </article>
-      </section>
+              <Modal.Header closeButton>
+                <Modal.Title>Add New Song</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <Form onSubmit={handleFormSubmit}>
+                  <Form.Group controlId="songName">
+                    <Form.Label>Song Name*</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      value={newSong.name}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="songDuration">
+                    <Form.Label>Song Duration</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="duration"
+                      value={newSong.duration}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="songUrl">
+                    <Form.Label>Song URL(optional)</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="url"
+                      value={newSong.url}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="songReleaseDate">
+                    <Form.Label>Release Date</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="releaseDate"
+                      value={newSong.releaseDate}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group controlId="songAlbum">
+                    <Form.Label>Album(optional)</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="album"
+                      value={newSong.album}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Form.Group>
+                  <Button className="modal-submit-button" type="submit">
+                    Add Song
+                  </Button>
+                </Form>
+              </Modal.Body>
+            </Modal>
+          </article>
+        </section>
+      ) : null}
     </main>
   ) : (
     <Modal show={true} centered>

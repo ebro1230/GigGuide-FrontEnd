@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Card from "react-bootstrap/Card";
 import "../ArtistCard.css";
 import Nav from "react-bootstrap/Nav";
-import axios from "axios";
 import Image from "react-bootstrap/Image";
 import { useNavigate } from "react-router-dom";
+import { LinkContainer } from "react-router-bootstrap";
 
 const ArtistCard = (props) => {
   const bandName = props.name;
@@ -24,9 +24,11 @@ const ArtistCard = (props) => {
       style={{ width: "auto" }}
       key={bandId}
     >
-      <Nav.Link onClick={onCardClick}>
-        <Card.Img src={bandPic} alt="Artist Picture" fluid={true} />
-      </Nav.Link>
+      <LinkContainer to={`/userprofile/${bandId}`}>
+        <Nav.Link>
+          <Card.Img src={bandPic} alt="Artist Picture" fluid={true} />
+        </Nav.Link>
+      </LinkContainer>
       <Card.ImgOverlay fluid={true}>
         <div className="favoritediv">
           {id ? (
@@ -71,12 +73,14 @@ const ArtistCard = (props) => {
             )
           ) : null}
         </div>
-        <Nav.Link onClick={onCardClick}>
-          <Card.Title className="bandName">{bandName}</Card.Title>
-          {isTouring ? (
-            <Card.Footer className="isTouring">Upcoming Shows</Card.Footer>
-          ) : null}
-        </Nav.Link>
+        <LinkContainer to={`/userprofile/${bandId}`}>
+          <Nav.Link>
+            <Card.Title className="bandName">{bandName}</Card.Title>
+            {isTouring ? (
+              <Card.Footer className="isTouring">Upcoming Shows</Card.Footer>
+            ) : null}
+          </Nav.Link>
+        </LinkContainer>
       </Card.ImgOverlay>
     </Card>
   );
