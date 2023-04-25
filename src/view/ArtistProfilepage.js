@@ -14,8 +14,10 @@ import Row from "react-bootstrap/Row";
 import Badge from "react-bootstrap/Badge";
 import ListGroup from "react-bootstrap/ListGroup";
 import { Modal, Form, Nav } from "react-bootstrap";
-import Datetime from "react-datetime";
 import Event from "../Components/Event";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { countryNames, stateAbbreviations, genreNames } from "../utils";
 
 const ArtistProfilepage = (props) => {
   const user = props.userData;
@@ -29,6 +31,7 @@ const ArtistProfilepage = (props) => {
     userCountry,
     userProfileImg,
     userBannerImg,
+    userGenre,
     favouriteArtists,
     bio,
     songsList,
@@ -44,6 +47,14 @@ const ArtistProfilepage = (props) => {
   //STATE VARIABLES AND FUNCTIONS FOR CREATING BIO CONTENT
   const [content, setContent] = useState(bio);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [newName, setNewName] = useState(userName);
+  const [newAge, setNewAge] = useState(userAge);
+  const [newGenre, setNewGenre] = useState(userGenre);
+  const [newCity, setNewCity] = useState(userCity);
+  const [newCountry, setNewCountry] = useState(userCountry);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [newProfilePicture, setNewProfilePicture] = useState("");
+  const [newBannerPicture, setNewBannerPicture] = useState("");
 
   const handleContentChange = (e) => {
     setContent(e.target.value);
@@ -53,6 +64,45 @@ const ArtistProfilepage = (props) => {
     setIsEditMode(true);
   };
 
+  const handleProfilePictureChange = (e) => {
+    const img = e.target.files[0];
+    setNewProfilePicture(img);
+  };
+
+  const handleBannerPictureChange = (e) => {
+    const img = e.target.files[0];
+    setNewBannerPicture(img);
+  };
+
+  const handleProfileUpdateSubmit = (e) => {
+    e.preventDefault();
+    let formData = new FormData();
+    formData.append("profile", newProfilePicture);
+    formData.append("banner", newBannerPicture);
+    formData.append("name", newName);
+    formData.append("age", newAge);
+    formData.append("city", newCity);
+    formData.append("country", newCountry);
+    formData.append("genre", newGenre);
+
+    axios
+      .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`, formData, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      })
+      .then((response) => {
+        console.log(response.data); // log the newly created event object
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setShowProfileModal(false);
+        setNewProfilePicture("");
+        setNewBannerPicture("");
+      });
+  };
   const handleUpdateButtonClick = (e) => {
     e.preventDefault();
     const payload = { bio: content };
@@ -73,7 +123,6 @@ const ArtistProfilepage = (props) => {
       })
       .finally(() => {
         setIsEditMode(false);
-        window.location.reload();
       });
   };
 
@@ -81,7 +130,8 @@ const ArtistProfilepage = (props) => {
   const [showSongsModal, setShowSongsModal] = useState(false);
   const [newSong, setNewSong] = useState({
     name: "",
-    duration: "",
+    minutes: "",
+    seconds: "",
     url: "",
     releaseDate: "",
     album: "",
@@ -95,6 +145,8 @@ const ArtistProfilepage = (props) => {
     event.preventDefault();
     const headers = { "Content-Type": "application/json" };
     const payload = newSong;
+    console.log(newSong.minutes);
+    console.log(newSong.seconds);
     // Send the new song to the server using Axios
     axios
       .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}/song`, payload, {
@@ -111,19 +163,28 @@ const ArtistProfilepage = (props) => {
         setShowSongsModal(false);
         setNewSong({
           name: "",
-          duration: "",
+          minutes: "",
+          seconds: "",
           url: "",
           releaseDate: "",
           album: "",
         });
-        window.location.reload();
       });
   };
   //MODAL DATA FOR CREATING NEW EVENT
   const [showEventModal, setShowEventModal] = useState(false);
   const [eventName, setEventName] = useState("");
   const [eventAddress, setEventAddress] = useState("");
+  const [eventCity, setEventCity] = useState(
+    userCity.charAt(0).toUpperCase() + userCity.slice(1)
+  );
+  const [eventCountry, setEventCountry] = useState(userCountry);
+  const [eventStreet, setEventStreet] = useState("");
+  const [eventPostalCode, setEventPostalCode] = useState("");
+  const [eventState, setEventState] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [displayDate, setDisplayDate] = useState("");
+  const [displayReleaseDate, setDisplayReleaseDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
   const [eventInfo, setEventInfo] = useState("");
   const handleEventSubmit = (e) => {
@@ -133,8 +194,8 @@ const ArtistProfilepage = (props) => {
       profilePicture: userProfileImg,
       artistName: userName,
       eventName: eventName,
-      date: new Date(eventDate._d).toISOString(),
-      startTime: new Date(eventDate._d).toISOString(),
+      date: eventDate,
+      startTime: eventDate,
       info: eventInfo,
       address: eventAddress,
       artistType: "local",
@@ -164,7 +225,6 @@ const ArtistProfilepage = (props) => {
         setEventDate("");
         setEventVenue("");
         setEventInfo("");
-        window.location.reload();
       });
   };
   return user.userName ? (
@@ -205,6 +265,15 @@ const ArtistProfilepage = (props) => {
             <Col>
               <p className="name">{userName}</p>
               <p className="username">{userUsername}</p>
+              {id === userId ? (
+                <Button
+                  className="create-event-button"
+                  variant="primary"
+                  onClick={() => setShowProfileModal(true)}
+                >
+                  Edit Profile
+                </Button>
+              ) : null}
             </Col>
             <Col>
               <div className="liked">
@@ -255,6 +324,96 @@ const ArtistProfilepage = (props) => {
             </Col>
           </Row>
         </article>
+        <Modal
+          show={showProfileModal}
+          onHide={() => setShowProfileModal(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Profile</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={handleProfileUpdateSubmit}>
+              <Form.Group controlId="userName">
+                <Form.Label>*Name:</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="userName"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="userAge">
+                <Form.Label>Age:</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="userAge"
+                  value={newAge}
+                  onChange={(e) => setNewAge(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>*City:</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="userCity"
+                  value={newCity}
+                  onChange={(e) => setNewCity(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group controlId="userCountry">
+                <Form.Label>*Country:</Form.Label>
+                <Form.Select
+                  value={newCountry}
+                  onChange={(e) => setNewCountry(e.target.value)}
+                  required
+                >
+                  {countryNames.map((countryName) => {
+                    return <option key={countryName}>{countryName}</option>;
+                  })}
+                </Form.Select>
+              </Form.Group>
+              <Form.Group controlId="userGenre">
+                <Form.Label>Genre:</Form.Label>
+                <Form.Select
+                  value={newGenre}
+                  onChange={(e) => setNewGenre(e.target.value)}
+                  required
+                >
+                  {genreNames.map((genreName) => {
+                    return <option key={genreName}>{genreName}</option>;
+                  })}
+                </Form.Select>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Update Profile Picture:</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="profile"
+                  onChange={handleProfilePictureChange}
+                />
+                <Form.Text className="text-muted">
+                  Please select an image to upload.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Update Banner Picture:</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="banner"
+                  onChange={handleBannerPictureChange}
+                />
+                <Form.Text className="text-muted">
+                  Please select an image to upload.
+                </Form.Text>
+              </Form.Group>
+              <p style={{ fontSize: "smaller" }}>* = Required Field</p>
+              <Button className="modal-submit-button" type="submit">
+                Submit Changes
+              </Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
       </section>
       {userId.length > 20 ? (
         <section className="artist-bio">
@@ -308,7 +467,7 @@ const ArtistProfilepage = (props) => {
               variant="primary"
               onClick={() => setShowEventModal(true)}
             >
-              Create event
+              Create Event
             </Button>
           ) : null}
 
@@ -319,7 +478,7 @@ const ArtistProfilepage = (props) => {
             <Modal.Body>
               <Form onSubmit={handleEventSubmit}>
                 <Form.Group>
-                  <Form.Label>Event name</Form.Label>
+                  <Form.Label>Event Name:</Form.Label>
                   <Form.Control
                     type="text"
                     value={eventName}
@@ -328,36 +487,91 @@ const ArtistProfilepage = (props) => {
                   />
                 </Form.Group>
                 <Form.Group>
-                  <Form.Label>Event address</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={eventAddress}
-                    onChange={(e) => setEventAddress(e.target.value)}
+                  <Form.Label>Event Address:</Form.Label>
+                  <Row>
+                    <Col>
+                      <Form.Label>Street:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={eventStreet}
+                        onChange={(e) => setEventStreet(e.target.value)}
+                        required
+                      />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <Form.Label>City:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={eventCity}
+                        onChange={(e) => setEventCity(e.target.value)}
+                        required
+                      />
+                    </Col>
+                    <Col>
+                      <Form.Label>State:</Form.Label>
+                      <Form.Select
+                        value={eventState}
+                        onChange={(e) => setEventState(e.target.value)}
+                        required
+                      >
+                        {stateAbbreviations.map((state) => {
+                          return <option key={state}>{state}</option>;
+                        })}
+                      </Form.Select>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <Form.Label>Country:</Form.Label>
+                      <Form.Select
+                        value={eventCountry}
+                        onChange={(e) => setEventCountry(e.target.value)}
+                        required
+                      >
+                        {countryNames.map((countryName) => {
+                          return (
+                            <option key={countryName}>{countryName}</option>
+                          );
+                        })}
+                      </Form.Select>
+                    </Col>
+                    <Col>
+                      <Form.Label>Postal Code:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={eventPostalCode}
+                        onChange={(e) => setEventPostalCode(e.target.value)}
+                        required
+                      />
+                    </Col>
+                  </Row>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Event Date & Time:</Form.Label>
+
+                  <DatePicker
+                    showTimeSelect
+                    selected={displayDate}
+                    todayButton
+                    placeholderText={`${new Date().toLocaleString()}`}
+                    onChange={(date) => {
+                      setDisplayDate(date);
+                      setEventDate(date.toISOString());
+                    }}
+                    dateFormat="Pp"
+                    minDate={new Date()}
                     required
                   />
                 </Form.Group>
                 <Form.Group>
-                  <Form.Label>Event date and time</Form.Label>
-                  <Datetime
-                    onChange={(value) => setEventDate(value)}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Event venue</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={eventVenue}
-                    onChange={(e) => setEventVenue(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Event info</Form.Label>
+                  <Form.Label>Event Info:</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={3}
                     value={eventInfo}
+                    placeholder="Minimum Age, Cover, Prohibited Items, etc."
                     onChange={(e) => setEventInfo(e.target.value)}
                     required
                   />
@@ -376,7 +590,7 @@ const ArtistProfilepage = (props) => {
       </section>
       {userId.length > 20 ? (
         <section className="artist-songs-section">
-          <p className="song-list-title">{userName}, songs:</p>
+          <p className="song-list-title">{userName} Songs:</p>
           <article className="songs-container">
             {songsList.length ? (
               <ListGroup as="ol" numbered>
@@ -386,22 +600,33 @@ const ArtistProfilepage = (props) => {
                       as="li"
                       className="d-flex justify-content-between align-items-start"
                     >
-                      <div className="ms-2 me-auto">
-                        <div className="fw-bold">{song.name}</div>
-                        Release date:{" "}
-                        {new Date(song.releaseDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
-                      </div>
-                      <Badge bg="primary" pill>
-                        Song duration: {song.duration}
-                      </Badge>
+                      <Col>
+                        <div className="ms-2 me-auto">
+                          <div className="fw-bold">{song.name}</div>
+                          {song.minutes ? (
+                            <Badge bg="primary" pill>
+                              Song Duration: {song.minutes}:{song.seconds}
+                            </Badge>
+                          ) : null}
+                        </div>
+                      </Col>
+                      <Col>
+                        {song.releaseDate ? (
+                          <div>
+                            Release date:{" "}
+                            {new Date(song.releaseDate).toLocaleDateString(
+                              "en-US",
+                              {
+                                weekday: "long",
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
+                          </div>
+                        ) : null}
+                        {song.album ? <div>Album: {song.album}</div> : null}
+                      </Col>
                     </ListGroup.Item>
                   );
                 })}
@@ -429,7 +654,7 @@ const ArtistProfilepage = (props) => {
               <Modal.Body>
                 <Form onSubmit={handleFormSubmit}>
                   <Form.Group controlId="songName">
-                    <Form.Label>Song Name*</Form.Label>
+                    <Form.Label>*Song Name:</Form.Label>
                     <Form.Control
                       type="text"
                       name="name"
@@ -439,45 +664,75 @@ const ArtistProfilepage = (props) => {
                     />
                   </Form.Group>
                   <Form.Group controlId="songDuration">
-                    <Form.Label>Song Duration</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="duration"
-                      value={newSong.duration}
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <Row>
+                      <Form.Label>Song Duration:</Form.Label>
+                    </Row>
+                    <Row>
+                      <Col>
+                        <Form.Label>Minutes:</Form.Label>
+                        <Form.Control
+                          type="number"
+                          name="minutes"
+                          min={0}
+                          max={59}
+                          value={newSong.minutes.toString().padStart(2, "0")}
+                          onChange={handleInputChange}
+                        />
+                      </Col>
+                      <Col>
+                        <Form.Label>Seconds:</Form.Label>
+                        <Form.Control
+                          type="number"
+                          name="seconds"
+                          min={0}
+                          max={59}
+                          value={newSong.seconds.toString().padStart(2, "0")}
+                          onChange={handleInputChange}
+                        />
+                      </Col>
+                    </Row>
                   </Form.Group>
                   <Form.Group controlId="songUrl">
-                    <Form.Label>Song URL(optional)</Form.Label>
+                    <Form.Label>Song URL:</Form.Label>
                     <Form.Control
                       type="text"
                       name="url"
                       value={newSong.url}
                       onChange={handleInputChange}
-                      required
                     />
                   </Form.Group>
                   <Form.Group controlId="songReleaseDate">
-                    <Form.Label>Release Date</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="releaseDate"
-                      value={newSong.releaseDate}
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <Row>
+                      <Form.Label>Release Date:</Form.Label>
+                    </Row>
+                    <Row>
+                      <Col>
+                        <DatePicker
+                          selected={displayReleaseDate}
+                          value={newSong.releaseDate}
+                          todayButton
+                          placeholderText={`${new Date().toLocaleString()}`}
+                          onChange={(date) => {
+                            setDisplayReleaseDate(date);
+                            handleInputChange({
+                              target: { name: "releaseDate", value: date },
+                            });
+                          }}
+                          required
+                        />
+                      </Col>
+                    </Row>
                   </Form.Group>
                   <Form.Group controlId="songAlbum">
-                    <Form.Label>Album(optional)</Form.Label>
+                    <Form.Label>Album:</Form.Label>
                     <Form.Control
                       type="text"
                       name="album"
                       value={newSong.album}
                       onChange={handleInputChange}
-                      required
                     />
                   </Form.Group>
+                  <p style={{ fontSize: "smaller" }}>* = Required Field</p>
                   <Button className="modal-submit-button" type="submit">
                     Add Song
                   </Button>
