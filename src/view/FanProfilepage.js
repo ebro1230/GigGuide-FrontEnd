@@ -81,7 +81,7 @@ const FanProfilepage = (props) => {
   };
 
   return user.userName ? (
-    <main className="profile-container">
+    <div className="profile-container">
       <section className="img-container">
         <div className="centerdiv">
           <article className="bannerdiv">
@@ -209,9 +209,9 @@ const FanProfilepage = (props) => {
           </Modal.Body>
         </Modal>
       </section>
-      <section className="events-and-fav-artist-contaiener">
-        <article className="favourite-artists-carousel">
-          <p className="favourite-artists-title">My favourite artists:</p>
+      <div className="BandsCarouseldiv">
+        <p className="favourite-artists-title">My favourite artists:</p>
+        <div className="carouseldiv">
           <Carousel
             cols={6}
             rows={1}
@@ -234,7 +234,7 @@ const FanProfilepage = (props) => {
               },
               {
                 breakpoint: 992,
-                cols: 4,
+                cols: 3,
                 rows: 1,
                 gap: 10,
                 loop: true,
@@ -243,7 +243,7 @@ const FanProfilepage = (props) => {
               },
               {
                 breakpoint: 768,
-                cols: 3,
+                cols: 2,
                 rows: 1,
                 gap: 10,
                 loop: true,
@@ -280,7 +280,9 @@ const FanProfilepage = (props) => {
                 })
               : null}
           </Carousel>
-        </article>
+        </div>
+      </div>
+      <section className="events-and-fav-artist-contaiener">
         <article className="saved-upcoming-events">
           <p className="saved-events-title">Saved upcoming events:</p>
           <Event
@@ -290,7 +292,7 @@ const FanProfilepage = (props) => {
           />
         </article>
       </section>
-    </main>
+    </div>
   ) : (
     <Modal show={true} centered>
       <Modal.Header style={{ display: "flex", justifyContent: "center" }}>

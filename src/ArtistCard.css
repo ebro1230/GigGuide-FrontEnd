@@ -18,8 +18,6 @@
   font-size: 10px;
 }
 
-
-
 .favorite {
   width: 100%;
   height: 100%;
@@ -82,44 +80,44 @@
 }
 
 @media (max-width: 380px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:43vw;
   }
 }
 
 @media (min-width: 380px) and (max-width: 465px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:39vw;
   }
 }
 
 @media (min-width: 465px) and (max-width: 520px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:33vw;
   }
 }
 @media (min-width: 520px) and (max-width: 576px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:30vw;
   }
 }
 @media (min-width: 576px) and (max-width: 768px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:22vw;
   }
 }
 @media (min-width: 768px) and (max-width: 992px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:15vw;
   }
 }
 @media (min-width: 992px) and (max-width: 1200px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:9vw;
   }
 }
 @media (min-width: 1200px) {
-  .artistCard .bVoXXg {
+  .bVoXXg {
     max-height:8vw;
   }
 }
