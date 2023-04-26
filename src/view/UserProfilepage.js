@@ -130,13 +130,35 @@ const UserProfilepage = () => {
             userCity: response.data.city,
             userCountry: response.data.country,
             userGenre: response.data.genre,
+            userProfileImgRaw: response.data.profilePicture,
             userProfileImg:
               process.env.REACT_APP_BACKEND_URL + response.data.profilePicture,
-            userBannerImg: "",
+            userBannerImg:
+              process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture,
             favouriteArtists: response.data.favouriteArtists,
             bio: response.data.bio,
             songsList: response.data.songsList,
-            upcomingEvents: response.data.upcomingEvents,
+            upcomingEvents: response.data.upcomingEvents.length
+              ? response.data.upcomingEvents.map((event) => {
+                  return {
+                    artistId: event.artistId,
+                    eventId: event._id,
+                    profilePicture: `${process.env.REACT_APP_BACKEND_URL}${event.profilePicture}`,
+                    artistName: event.artistName,
+                    eventName: event.eventName,
+                    date: event.date,
+                    startTime: event.startTime,
+                    info: event.info,
+                    street: event.street,
+                    city: event.city,
+                    state: event.state ? event.state : "",
+                    country: event.country,
+                    postalCode: event.postalCode,
+                    address: event.address,
+                    artistType: event.artistType,
+                  };
+                })
+              : "",
             plannedEvents: response.data.plannedEvents,
             userType: response.data.userType,
           });

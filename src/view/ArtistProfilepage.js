@@ -1,19 +1,15 @@
 import { Image } from "react-bootstrap";
 import { useState } from "react";
 import axios from "axios";
-import Figure from "react-bootstrap/Figure";
-import Accordion from "react-bootstrap/Accordion";
-import AccordionHeader from "react-bootstrap/AccordionHeader";
-import AccordionItem from "react-bootstrap/AccordionItem";
 import "../Profilepage.css";
 import "../ArtistCard.css";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { InputGroup, FormControl, Button, ModalBody } from "react-bootstrap";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Badge from "react-bootstrap/Badge";
 import ListGroup from "react-bootstrap/ListGroup";
-import { Modal, Form, Nav } from "react-bootstrap";
+import { Modal, Form } from "react-bootstrap";
 import Event from "../Components/Event";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -29,6 +25,7 @@ const ArtistProfilepage = (props) => {
     userAge,
     userCity,
     userCountry,
+    userProfileImgRaw,
     userProfileImg,
     userBannerImg,
     userGenre,
@@ -48,7 +45,6 @@ const ArtistProfilepage = (props) => {
   const [content, setContent] = useState(bio);
   const [isEditMode, setIsEditMode] = useState(false);
   const [newName, setNewName] = useState(userName);
-  const [newAge, setNewAge] = useState(userAge);
   const [newGenre, setNewGenre] = useState(userGenre);
   const [newCity, setNewCity] = useState(userCity);
   const [newCountry, setNewCountry] = useState(userCountry);
@@ -80,7 +76,6 @@ const ArtistProfilepage = (props) => {
     formData.append("profile", newProfilePicture);
     formData.append("banner", newBannerPicture);
     formData.append("name", newName);
-    formData.append("age", newAge);
     formData.append("city", newCity);
     formData.append("country", newCountry);
     formData.append("genre", newGenre);
@@ -174,7 +169,6 @@ const ArtistProfilepage = (props) => {
   //MODAL DATA FOR CREATING NEW EVENT
   const [showEventModal, setShowEventModal] = useState(false);
   const [eventName, setEventName] = useState("");
-  const [eventAddress, setEventAddress] = useState("");
   const [eventCity, setEventCity] = useState(
     userCity.charAt(0).toUpperCase() + userCity.slice(1)
   );
@@ -185,22 +179,28 @@ const ArtistProfilepage = (props) => {
   const [eventDate, setEventDate] = useState("");
   const [displayDate, setDisplayDate] = useState("");
   const [displayReleaseDate, setDisplayReleaseDate] = useState("");
-  const [eventVenue, setEventVenue] = useState("");
   const [eventInfo, setEventInfo] = useState("");
   const handleEventSubmit = (e) => {
     e.preventDefault();
     const newEvent = {
       artistId: userId,
-      profilePicture: userProfileImg,
+      profilePicture: userProfileImgRaw,
       artistName: userName,
       eventName: eventName,
       date: eventDate,
       startTime: eventDate,
       info: eventInfo,
-      address: eventAddress,
+      street: eventStreet,
+      city: eventCity,
+      state: eventState ? eventState : "",
+      country: eventCountry,
+      postalCode: eventPostalCode,
+      address: eventState
+        ? `${eventStreet}, ${eventCity}, ${eventState} ${eventPostalCode}, ${eventCountry}`
+        : `${eventStreet}, ${eventPostalCode} ${eventCity}, ${eventCountry}`,
       artistType: "local",
     };
-
+    console.log(newEvent);
     const headers = { "Content-Type": "application/json" };
     const payload = newEvent;
 
@@ -221,10 +221,13 @@ const ArtistProfilepage = (props) => {
       .finally(() => {
         setShowEventModal(false);
         setEventName("");
-        setEventAddress("");
         setEventDate("");
-        setEventVenue("");
         setEventInfo("");
+        setEventState("");
+        setEventCountry(userCountry);
+        setEventStreet("");
+        setEventPostalCode("");
+        setEventCity(userCity.charAt(0).toUpperCase() + userCity.slice(1));
       });
   };
   return user.userName ? (
@@ -341,15 +344,6 @@ const ArtistProfilepage = (props) => {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   required
-                />
-              </Form.Group>
-              <Form.Group controlId="userAge">
-                <Form.Label>Age:</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="userAge"
-                  value={newAge}
-                  onChange={(e) => setNewAge(e.target.value)}
                 />
               </Form.Group>
               <Form.Group>
@@ -473,7 +467,7 @@ const ArtistProfilepage = (props) => {
 
           <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Create new event</Modal.Title>
+              <Modal.Title>Create New Event</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <Form onSubmit={handleEventSubmit}>
@@ -501,29 +495,6 @@ const ArtistProfilepage = (props) => {
                   </Row>
                   <Row>
                     <Col>
-                      <Form.Label>City:</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={eventCity}
-                        onChange={(e) => setEventCity(e.target.value)}
-                        required
-                      />
-                    </Col>
-                    <Col>
-                      <Form.Label>State:</Form.Label>
-                      <Form.Select
-                        value={eventState}
-                        onChange={(e) => setEventState(e.target.value)}
-                        required
-                      >
-                        {stateAbbreviations.map((state) => {
-                          return <option key={state}>{state}</option>;
-                        })}
-                      </Form.Select>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
                       <Form.Label>Country:</Form.Label>
                       <Form.Select
                         value={eventCountry}
@@ -536,6 +507,33 @@ const ArtistProfilepage = (props) => {
                           );
                         })}
                       </Form.Select>
+                    </Col>
+                  </Row>
+                  {eventCountry === "United States Of America" ? (
+                    <Row>
+                      <Col>
+                        <Form.Label>State:</Form.Label>
+                        <Form.Select
+                          value={eventState}
+                          onChange={(e) => setEventState(e.target.value)}
+                          required
+                        >
+                          {stateAbbreviations.map((state) => {
+                            return <option key={state}>{state}</option>;
+                          })}
+                        </Form.Select>
+                      </Col>
+                    </Row>
+                  ) : null}
+                  <Row>
+                    <Col>
+                      <Form.Label>City:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={eventCity}
+                        onChange={(e) => setEventCity(e.target.value)}
+                        required
+                      />
                     </Col>
                     <Col>
                       <Form.Label>Postal Code:</Form.Label>

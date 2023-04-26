@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Image, Button, Modal, ModalBody } from "react-bootstrap";
+import { Image, Button, Modal, ModalBody, Form } from "react-bootstrap";
+import axios from "axios";
+import { countryNames } from "../utils";
+
 import Carousel from "react-grid-carousel";
 import "../Profilepage.css";
 import "../ArtistCard.css";
@@ -8,16 +11,7 @@ import ArtistCard from "../Components/ArtistCard";
 import Event from "../Components/Event";
 
 const FanProfilepage = (props) => {
-  const [index, setIndex] = useState(0);
-  const handleSelect = (selectedIndex) => {
-    setIndex(selectedIndex);
-  };
-  const navigate = useNavigate();
   const user = props.userData;
-  const currentSavedEvents = props.currentSavedEvents;
-
-  const id = sessionStorage.getItem("userId");
-
   const {
     userId,
     userUsername,
@@ -30,19 +24,77 @@ const FanProfilepage = (props) => {
     favouriteArtists,
     plannedEvents,
   } = user;
+  const [index, setIndex] = useState(0);
+  const handleSelect = (selectedIndex) => {
+    setIndex(selectedIndex);
+  };
+  const navigate = useNavigate();
+
+  const currentSavedEvents = props.currentSavedEvents;
+  const [newName, setNewName] = useState(userName);
+  const [newAge, setNewAge] = useState(userAge);
+  const [newCity, setNewCity] = useState(userCity);
+  const [newCountry, setNewCountry] = useState(userCountry);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [newProfilePicture, setNewProfilePicture] = useState("");
+  const [newBannerPicture, setNewBannerPicture] = useState("");
+
+  const id = sessionStorage.getItem("userId");
+
+  const handleProfilePictureChange = (e) => {
+    const img = e.target.files[0];
+    setNewProfilePicture(img);
+  };
+
+  const handleBannerPictureChange = (e) => {
+    const img = e.target.files[0];
+    setNewBannerPicture(img);
+  };
+
+  const handleProfileUpdateSubmit = (e) => {
+    e.preventDefault();
+    let formData = new FormData();
+    formData.append("profile", newProfilePicture);
+    formData.append("banner", newBannerPicture);
+    formData.append("name", newName);
+    formData.append("age", newAge);
+    formData.append("city", newCity);
+    formData.append("country", newCountry);
+
+    axios
+      .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`, formData, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      })
+      .then((response) => {
+        console.log(response.data); // log the newly created event object
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setShowProfileModal(false);
+        setNewProfilePicture("");
+        setNewBannerPicture("");
+      });
+  };
+
   return user.userName ? (
     <main className="profile-container">
       <section className="img-container">
-        <article>
-          {userBannerImg ? (
-            <Image
-              fluid={true}
-              className="banner-img"
-              src={userBannerImg}
-              alt="Banner img"
-            />
-          ) : null}
-        </article>
+        <div className="centerdiv">
+          <article className="bannerdiv">
+            {userBannerImg ? (
+              <Image
+                fluid={true}
+                className="banner-img"
+                src={userBannerImg}
+                alt="Banner img"
+              />
+            ) : null}
+          </article>
+        </div>
         <article>
           {userProfileImg ? (
             <Image
@@ -68,17 +120,103 @@ const FanProfilepage = (props) => {
             {userName}, <span className="age">({userAge})</span>
           </p>
           <p className="username">({userUsername})</p>
+          {id === userId ? (
+            <Button
+              className="create-event-button"
+              variant="primary"
+              onClick={() => setShowProfileModal(true)}
+            >
+              Edit Profile
+            </Button>
+          ) : null}
         </article>
+        <Modal
+          show={showProfileModal}
+          onHide={() => setShowProfileModal(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Profile</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={handleProfileUpdateSubmit}>
+              <Form.Group controlId="userName">
+                <Form.Label>*Name:</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="userName"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group controlId="userAge">
+                <Form.Label>Age:</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="userAge"
+                  value={newAge}
+                  onChange={(e) => setNewAge(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>*City:</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="userCity"
+                  value={newCity}
+                  onChange={(e) => setNewCity(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group controlId="userCountry">
+                <Form.Label>*Country:</Form.Label>
+                <Form.Select
+                  value={newCountry}
+                  onChange={(e) => setNewCountry(e.target.value)}
+                  required
+                >
+                  {countryNames.map((countryName) => {
+                    return <option key={countryName}>{countryName}</option>;
+                  })}
+                </Form.Select>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Update Profile Picture:</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="profile"
+                  onChange={handleProfilePictureChange}
+                />
+                <Form.Text className="text-muted">
+                  Please select an image to upload.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Update Banner Picture:</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="banner"
+                  onChange={handleBannerPictureChange}
+                />
+                <Form.Text className="text-muted">
+                  Please select an image to upload.
+                </Form.Text>
+              </Form.Group>
+              <p style={{ fontSize: "smaller" }}>* = Required Field</p>
+              <Button className="modal-submit-button" type="submit">
+                Submit Changes
+              </Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
       </section>
       <section className="events-and-fav-artist-contaiener">
         <article className="favourite-artists-carousel">
           <p className="favourite-artists-title">My favourite artists:</p>
           <Carousel
-            activeIndex={index}
-            onSelect={handleSelect}
             cols={6}
             rows={1}
             gap={10}
+            className="carousel"
             loop={true}
             scrollSnap={true}
             hideArrow={false}
@@ -112,31 +250,22 @@ const FanProfilepage = (props) => {
                 hideArrow: false,
                 showDots: true,
               },
-              {
-                breakpoint: 576,
-                cols: 2,
-                rows: 1,
-                gap: 10,
-                loop: true,
-                hideArrow: false,
-                showDots: true,
-              },
-              {
-                breakpoint: 350,
-                cols: 1,
-                rows: 1,
-                gap: 10,
-                loop: true,
-                hideArrow: false,
-                showDots: true,
-              },
+              /*  {
+              breakpoint: 576,
+              cols: 2,
+              rows: 1,
+              gap: 10,
+              loop: true,
+              hideArrow: false,
+              showDots: true,
+            }, */
             ]}
-            mobileBreakpoint={3}
+            mobileBreakpoint={576}
           >
             {favouriteArtists.length
               ? favouriteArtists.map((artist, index) => {
                   return artist ? (
-                    <Carousel.Item key={index}>
+                    <Carousel.Item key={index} className="carousel-item">
                       <ArtistCard
                         className="band"
                         name={artist.name}

@@ -171,7 +171,9 @@ const LocalBandsPage = () => {
 
   useEffect(() => {
     setIsLoading(true);
+
     if (id) {
+      localEvents = [];
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}api/artists/${id}`)
         .then((response) => {
@@ -186,9 +188,8 @@ const LocalBandsPage = () => {
               )
               .then((response) => {
                 setLocalBands(response.data);
-                console.log(response.data);
+                localEvents = [];
                 response.data.map((band) => {
-                  console.log(band);
                   return band.upcomingEvents
                     ? band.upcomingEvents.length
                       ? band.upcomingEvents.forEach((event) => {
@@ -225,13 +226,12 @@ const LocalBandsPage = () => {
               )
               .then((response) => {
                 setLocalBands(response.data);
-                console.log(response.data);
+                localEvents = [];
                 response.data.map((band) => {
-                  console.log(band);
                   return band.upcomingEvents
                     ? band.upcomingEvents.length
                       ? band.upcomingEvents.forEach((event) => {
-                          console.log(event);
+                          console.log(localEvents);
                           localEvents = [
                             ...localEvents,
                             {
@@ -267,6 +267,7 @@ const LocalBandsPage = () => {
           setIsLoading(false);
         });
     } else {
+      localEvents = [];
       axios
         .get(
           `https://api.ipgeolocation.io/ipgeo?apiKey=${process.env.REACT_APP_IP_API_KEY}`,
@@ -286,13 +287,12 @@ const LocalBandsPage = () => {
             )
             .then((response) => {
               setLocalBands(response.data);
-              console.log(response.data);
+              localEvents = [];
               response.data.map((band) => {
-                console.log(band);
                 return band.upcomingEvents
                   ? band.upcomingEvents.length
                     ? band.upcomingEvents.forEach((event) => {
-                        console.log(event);
+                        console.log(localEvents);
                         localEvents = [
                           ...localEvents,
                           {

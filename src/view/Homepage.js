@@ -10,6 +10,7 @@ import SearchBar from "../Components/SearchBar";
 import LoadingIndicator from "../Components/LoadingIndicator";
 
 import "../LandingPage.css";
+import "../ArtistCard.css";
 
 import { getCountryCode, getGenreId } from "../utils";
 
@@ -240,9 +241,8 @@ const HomePage = () => {
               )
               .then((response) => {
                 setLocalBands(response.data);
-                console.log(response.data);
+                localEvents = [];
                 response.data.map((band) => {
-                  console.log(band);
                   return band.upcomingEvents
                     ? band.upcomingEvents.length
                       ? band.upcomingEvents.forEach((event) => {
@@ -278,9 +278,8 @@ const HomePage = () => {
               )
               .then((response) => {
                 setLocalBands(response.data);
-                console.log(response.data);
+                localEvents = [];
                 response.data.map((band) => {
-                  console.log(band);
                   return band.upcomingEvents
                     ? band.upcomingEvents.length
                       ? band.upcomingEvents.forEach((event) => {

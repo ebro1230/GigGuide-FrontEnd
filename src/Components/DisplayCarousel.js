@@ -45,7 +45,7 @@ const ControlledCarousel = (props) => {
           },
           {
             breakpoint: 992,
-            cols: 4,
+            cols: 3,
             rows: 1,
             gap: 10,
             loop: true,
@@ -54,22 +54,22 @@ const ControlledCarousel = (props) => {
           },
           {
             breakpoint: 768,
-            cols: 3,
+            cols: 2,
             rows: 1,
             gap: 10,
             loop: true,
             hideArrow: false,
             showDots: true,
           },
-          /*  {
-          breakpoint: 576,
-          cols: 2,
-          rows: 1,
-          gap: 10,
-          loop: true,
-          hideArrow: false,
-          showDots: true,
-        }, */
+          {
+            breakpoint: 576,
+            cols: 2,
+            rows: 1,
+            gap: 10,
+            loop: true,
+            hideArrow: false,
+            showDots: true,
+          },
         ]}
         mobileBreakpoint={576}
       >

@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { Image, Button, Modal, Form, Figure, Accordion } from "react-bootstrap";
-import { useParams, NavLink, useNavigate } from "react-router-dom";
+import { Image, Button, Modal, Form } from "react-bootstrap";
+import { useParams, useNavigate } from "react-router-dom";
+import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { countryNames, stateAbbreviations } from "../utils";
 
 import axios from "axios";
 
-import AccordionHeader from "react-bootstrap/AccordionHeader";
-import AccordionItem from "react-bootstrap/AccordionItem";
 import Event from "../Components/Event";
 
-import Datetime from "react-datetime";
 import LoadingIndicator from "../Components/LoadingIndicator";
 import { getCountryCode } from "../utils";
 
@@ -18,22 +21,40 @@ import "../ArtistCard.css";
 const EventsPage = () => {
   const { userId, eventId } = useParams();
   const id = sessionStorage.getItem("userId");
-  const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
+
   const [eventName, setEventName] = useState("");
-  const [eventAddress, setEventAddress] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [eventVenue, setEventVenue] = useState("");
-  const [eventInfo, setEventInfo] = useState("");
   const [newEventName, setNewEventName] = useState("");
+
+  const [eventAddress, setEventAddress] = useState("");
   const [newEventAddress, setNewEventAddress] = useState("");
+
+  const [eventDate, setEventDate] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
-  const [newEventVenue, setNewEventVenue] = useState("");
+
+  const [eventStreet, setEventStreet] = useState("");
+  const [newEventStreet, setNewEventStreet] = useState("");
+
+  const [eventCity, setEventCity] = useState("");
+  const [newEventCity, setNewEventCity] = useState("");
+
+  const [eventCountry, setEventCountry] = useState("");
+  const [newEventCountry, setNewEventCountry] = useState("");
+
+  const [eventState, setEventState] = useState("");
+  const [newEventState, setNewEventState] = useState("");
+
+  const [eventPostalCode, setEventPostalCode] = useState("");
+  const [newEventPostalCode, setNewEventPostalCode] = useState("");
+
+  const [eventInfo, setEventInfo] = useState("");
   const [newEventInfo, setNewEventInfo] = useState("");
+
   const [userName, setUserName] = useState("");
   const [userBannerImg, setUserBannerImg] = useState("");
   const [userProfileImg, setUserProfileImg] = useState("");
+  const [userProfileImgRaw, setUserProfileImgRaw] = useState("");
   const [userUsername, setUserUsername] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
@@ -43,9 +64,9 @@ const EventsPage = () => {
   const [currentSavedEvents, setCurrentSavedEvents] = useState([]);
   const [success, setSuccess] = useState(false);
   const [deleteEvent, setDeleteEvent] = useState(false);
+  const [displayDate, setDisplayDate] = useState("");
   const navigate = useNavigate();
 
-  let eventKey = 0;
   console.log(upcomingEvents);
 
   useEffect(() => {
@@ -65,22 +86,59 @@ const EventsPage = () => {
           setUserProfileImg(
             process.env.REACT_APP_BACKEND_URL + response.data.profilePicture
           );
+          setUserProfileImgRaw(response.data.profilePicture);
           setUserUsername(response.data.username);
           setArtistName(response.data.name);
-          setUpcomingEvents(response.data.upcomingEvents);
-          console.log(response.data.upcomingEvents[0]._id);
+          setUpcomingEvents(
+            response.data.upcomingEvents.length
+              ? response.data.upcomingEvents.map((event) => {
+                  return {
+                    artistId: event.artistId,
+                    eventId: event._id,
+                    profilePicture: `${process.env.REACT_APP_BACKEND_URL}${event.profilePicture}`,
+                    artistName: event.artistName,
+                    eventName: event.eventName,
+                    date: event.date,
+                    startTime: event.startTime,
+                    info: event.info,
+                    street: event.street,
+                    city: event.city,
+                    state: event.state ? event.state : "",
+                    country: event.country,
+                    postalCode: event.postalCode,
+                    address: event.address,
+                    artistType: event.artistType,
+                  };
+                })
+              : ""
+          );
           const event = response.data.upcomingEvents.filter(
             (upcomingEvent) => upcomingEvent._id === eventId
           );
           setEventDate({ _d: event[0].date.toString() });
-          setEventVenue(event[0].venue);
-          setEventInfo(event[0].info);
-          setEventAddress(event[0].address);
-          setEventName(event[0].eventName);
           setNewEventDate({ _d: event[0].date.toString() });
-          setNewEventVenue(event[0].venue);
+
+          setEventInfo(event[0].info);
           setNewEventInfo(event[0].info);
-          setNewEventAddress(event[0].address);
+
+          setEventAddress(event[0].address);
+
+          setEventStreet(event[0].street);
+          setNewEventStreet(event[0].street);
+
+          setEventCity(event[0].city);
+          setNewEventCity(event[0].city);
+
+          setEventState(event.state);
+          setNewEventState(event[0].state);
+
+          setEventCountry(event[0].country);
+          setNewEventCountry(event[0].country);
+
+          setEventPostalCode(event[0].postalCode);
+          setNewEventPostalCode(event[0].postalCode);
+
+          setEventName(event[0].eventName);
           setNewEventName(event[0].eventName);
         })
         .catch((error) => {
@@ -116,9 +174,7 @@ const EventsPage = () => {
           setEventDate({
             _d: response.data._embedded.events[0].dates.start.dateTime.toString(),
           });
-          setEventVenue(
-            response.data._embedded.events[0]._embedded.venues[0].name
-          );
+
           if (
             response.data._embedded.events[0]._embedded.venues[0].generalInfo
           ) {
@@ -161,9 +217,7 @@ const EventsPage = () => {
           setNewEventDate({
             _d: response.data._embedded.events[0].dates.start.dateTime.toString(),
           });
-          setNewEventVenue(
-            response.data._embedded.events[0]._embedded.venues[0].name
-          );
+
           if (
             response.data._embedded.events[0]._embedded.venues[0].generalInfo
           ) {
@@ -277,31 +331,57 @@ const EventsPage = () => {
           setIsLoading(false);
         });
     }
-  }, []);
+  }, [eventId, userId]);
 
   const handleEventSubmit = (e) => {
     e.preventDefault();
-    const date = new Date(newEventDate._d).toISOString();
-    const info = newEventInfo;
-    const address = newEventAddress;
-    const venue = newEventVenue;
-    const eventName = newEventName;
-    setEventDate(date);
-    setEventInfo(newEventInfo);
-    setEventAddress(newEventAddress);
-    setEventVenue(newEventVenue);
-    setEventName(newEventName);
-
-    const headers = { "Content-Type": "application/json" };
-    const payload = {
-      eventName,
-      artistName,
-      date,
-      startTime: date,
-      venue,
-      address,
-      info,
+    const editedEvent = {
+      artistId: userId,
+      profilePicture: userProfileImgRaw,
+      artistName: userName,
+      eventName: newEventName,
+      date: newEventDate,
+      startTime: newEventDate,
+      info: newEventInfo,
+      street: newEventStreet,
+      city: newEventCity,
+      state: newEventState ? newEventState : "",
+      country: newEventCountry,
+      postalCode: newEventPostalCode,
+      address: newEventState
+        ? `${newEventStreet}, ${newEventCity}, ${newEventState} ${newEventPostalCode}, ${newEventCountry}`
+        : `${newEventStreet}, ${newEventPostalCode} ${newEventCity}, ${newEventCountry}`,
+      artistType: "local",
     };
+    console.log(editedEvent);
+    const headers = { "Content-Type": "application/json" };
+    const payload = editedEvent;
+
+    axios
+      .put(
+        `${process.env.REACT_APP_BACKEND_URL}api/user/${id}/upcomingEvent${eventId}`,
+        payload,
+        {
+          headers,
+        }
+      )
+      .then((response) => {
+        console.log(response.data); // log the newly created event object
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setShowEventModal(false);
+        setNewEventName("");
+        setNewEventDate("");
+        setNewEventInfo("");
+        setNewEventStreet("");
+        setNewEventCity(city.charAt(0).toUpperCase() + city.slice(1));
+        setNewEventState("");
+        setNewEventCountry(country);
+        setNewEventPostalCode("");
+      });
 
     axios
       .put(
@@ -315,7 +395,7 @@ const EventsPage = () => {
         console.log(response.data); // log the edited event object
         setSuccess(true);
         setTimeout(() => {
-          navigate(`/userprofile`);
+          navigate(`/userprofile/${userId}`);
         }, 3000);
       })
       .catch((error) => {
@@ -507,15 +587,14 @@ const EventsPage = () => {
             onEventClick={handleEventClick}
             currentSavedEvents={currentSavedEvents}
           />
-
           <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Create new event</Modal.Title>
+              <Modal.Title>Edit Event</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <Form onSubmit={handleEventSubmit}>
                 <Form.Group>
-                  <Form.Label>Event name</Form.Label>
+                  <Form.Label>Event Name:</Form.Label>
                   <Form.Control
                     type="text"
                     value={newEventName}
@@ -524,39 +603,98 @@ const EventsPage = () => {
                   />
                 </Form.Group>
                 <Form.Group>
-                  <Form.Label>Event address</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newEventAddress}
-                    onChange={(e) => setNewEventAddress(e.target.value)}
-                    required
-                  />
+                  <Form.Label>Event Address:</Form.Label>
+                  <Row>
+                    <Col>
+                      <Form.Label>Street:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={newEventStreet}
+                        onChange={(e) => setNewEventStreet(e.target.value)}
+                        required
+                      />
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      <Form.Label>Country:</Form.Label>
+                      <Form.Select
+                        value={newEventCountry}
+                        onChange={(e) => setNewEventCountry(e.target.value)}
+                        required
+                      >
+                        {countryNames.map((countryName) => {
+                          return (
+                            <option key={countryName}>{countryName}</option>
+                          );
+                        })}
+                      </Form.Select>
+                    </Col>
+                  </Row>
+                  {newEventCountry === "United States Of America" ? (
+                    <Row>
+                      <Col>
+                        <Form.Label>State:</Form.Label>
+                        <Form.Select
+                          value={newEventState}
+                          onChange={(e) => setNewEventState(e.target.value)}
+                          required
+                        >
+                          {stateAbbreviations.map((state) => {
+                            return <option key={state}>{state}</option>;
+                          })}
+                        </Form.Select>
+                      </Col>
+                    </Row>
+                  ) : null}
+                  <Row>
+                    <Col>
+                      <Form.Label>City:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={newEventCity}
+                        onChange={(e) => setNewEventCity(e.target.value)}
+                        required
+                      />
+                    </Col>
+                    <Col>
+                      <Form.Label>Postal Code:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={newEventPostalCode}
+                        onChange={(e) => setNewEventPostalCode(e.target.value)}
+                        required
+                      />
+                    </Col>
+                  </Row>
                 </Form.Group>
                 <Form.Group>
-                  <Form.Label>Event date and time</Form.Label>
-                  <Datetime
-                    onChange={(value) => {
-                      setNewEventDate(value);
+                  <Form.Label>Event Date & Time:</Form.Label>
+
+                  <DatePicker
+                    showTimeSelect
+                    selected={displayDate}
+                    todayButton
+                    placeholderText={`${new Date(
+                      eventDate._d
+                    ).toLocaleString()}`}
+                    default={`${new Date(eventDate._d).toLocaleString()}`}
+                    onChange={(date) => {
+                      setDisplayDate(date);
+                      setNewEventDate(date.toISOString());
                     }}
-                    required
-                    value={newEventDate}
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Form.Label>Event venue</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newEventVenue}
-                    onChange={(e) => setNewEventVenue(e.target.value)}
+                    dateFormat="Pp"
+                    minDate={new Date()}
                     required
                   />
                 </Form.Group>
                 <Form.Group>
-                  <Form.Label>Event info</Form.Label>
+                  <Form.Label>Event Info:</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={3}
                     value={newEventInfo}
+                    placeholder="Minimum Age, Cover, Prohibited Items, etc."
                     onChange={(e) => setNewEventInfo(e.target.value)}
                     required
                   />
@@ -570,7 +708,7 @@ const EventsPage = () => {
                 </Button>
               </Form>
             </Modal.Body>
-          </Modal>
+          </Modal>{" "}
         </article>
       </section>
     </main>
