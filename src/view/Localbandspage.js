@@ -269,15 +269,13 @@ const LocalBandsPage = () => {
     } else {
       localEvents = [];
       axios
-        .get(
-          `https://api.ipgeolocation.io/ipgeo?apiKey=${process.env.REACT_APP_IP_API_KEY}`,
-          {
-            headers: {
-              "Access-Control-Allow-Origin": "*",
-            },
-          }
-        )
+        .get(`${process.env.REACT_APP_BACKEND_URL}getIP`, {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+          },
+        })
         .then((response) => {
+          console.log(response);
           setCity(response.data.city);
           setCountryCode(response.data.country_code2);
           setCountry(response.data.country_name);
