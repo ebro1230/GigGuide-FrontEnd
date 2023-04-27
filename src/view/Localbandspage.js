@@ -268,57 +268,60 @@ const LocalBandsPage = () => {
         });
     } else {
       localEvents = [];
-      axios({
-        method: "get",
-        url: "http://ip-api.com/json/?fields=status,message,country,countryCode,city",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      }).then((response) => {
-        console.log(response);
-        setCity(response.data.city);
-        setCountryCode(response.data.country_code2);
-        setCountry(response.data.country_name);
-        axios
-          .get(
-            `${process.env.REACT_APP_BACKEND_URL}api/artists/0/${response.data.country_name}/${response.data.city}/0`
-          )
-          .then((response) => {
-            setLocalBands(response.data);
-            localEvents = [];
-            response.data.map((band) => {
-              return band.upcomingEvents
-                ? band.upcomingEvents.length
-                  ? band.upcomingEvents.forEach((event) => {
-                      console.log(localEvents);
-                      localEvents = [
-                        ...localEvents,
-                        {
-                          artistId: band._id,
-                          eventId: event._id,
-                          profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
-                          artistName: band.name,
-                          eventName: event.eventName,
-                          date: event.date,
-                          startTime: event.startTime,
-                          info: event.info,
-                          address: event.address,
-                          artistType: "local",
-                        },
-                      ];
-                    })
-                  : null
-                : null;
+      axios
+        .get(
+          `https://api.ipgeolocation.io/ipgeo?apiKey=${process.env.REACT_APP_IP_API_KEY}`,
+          {
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+            },
+          }
+        )
+        .then((response) => {
+          console.log(response);
+          setCity(response.data.city);
+          setCountryCode(response.data.country_code2);
+          setCountry(response.data.country_name);
+          axios
+            .get(
+              `${process.env.REACT_APP_BACKEND_URL}api/artists/0/${response.data.country_name}/${response.data.city}/0`
+            )
+            .then((response) => {
+              setLocalBands(response.data);
+              localEvents = [];
+              response.data.map((band) => {
+                return band.upcomingEvents
+                  ? band.upcomingEvents.length
+                    ? band.upcomingEvents.forEach((event) => {
+                        console.log(localEvents);
+                        localEvents = [
+                          ...localEvents,
+                          {
+                            artistId: band._id,
+                            eventId: event._id,
+                            profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
+                            artistName: band.name,
+                            eventName: event.eventName,
+                            date: event.date,
+                            startTime: event.startTime,
+                            info: event.info,
+                            address: event.address,
+                            artistType: "local",
+                          },
+                        ];
+                      })
+                    : null
+                  : null;
+              });
+              setUpcomingLocalEvents(localEvents);
+            })
+            .catch((error) => {
+              console.log(error);
+            })
+            .finally(() => {
+              setIsLoading(false);
             });
-            setUpcomingLocalEvents(localEvents);
-          })
-          .catch((error) => {
-            console.log(error);
-          })
-          .finally(() => {
-            setIsLoading(false);
-          });
-      });
+        });
     }
   }, []);
 
