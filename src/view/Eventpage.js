@@ -493,18 +493,24 @@ const EventsPage = () => {
   ) : (
     <main className="profile-container">
       <section className="img-container">
+        <div className="centerdiv">
+          {userBannerImg.length ? (
+            <article className="bannerdiv">
+              <Image
+                fluid={true}
+                className="banner-img"
+                src={userBannerImg}
+                alt="Banner img"
+              />
+            </article>
+          ) : (
+            <article className="nobannerdiv">
+              <Image fluid={true} className="banner-img" />
+            </article>
+          )}
+        </div>
         <article>
-          {userBannerImg ? (
-            <Image
-              fluid={true}
-              className="banner-img"
-              src={userBannerImg}
-              alt="Banner img"
-            />
-          ) : null}
-        </article>
-        <article>
-          {userProfileImg ? (
+          {userProfileImg.length ? (
             <Image
               fluid={true}
               className="profile-img"
@@ -517,7 +523,6 @@ const EventsPage = () => {
               fluid={true}
               className="no-profile-img"
               roundedCircle={true}
-              alt="No profile img"
             />
           )}
         </article>

@@ -104,7 +104,7 @@ const Login = () => {
           <Form.Control
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value.toLowerCase())}
           />
         </Form.Group>
         <Form.Group controlId="formPassword">

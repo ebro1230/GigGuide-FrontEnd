@@ -24,61 +24,19 @@ const FanProfilepage = (props) => {
     favouriteArtists,
     plannedEvents,
   } = user;
-  const [index, setIndex] = useState(0);
-  const handleSelect = (selectedIndex) => {
-    setIndex(selectedIndex);
-  };
+  const newName = props.newName;
+  const newAge = props.newAge;
+  const newCity = props.newCity;
+  const newCountry = props.newCountry;
+  const newProfilePicture = props.newProfilePicture;
+  const newBannerPicture = props.newBannerPicture;
+  const showProfileModal = props.showProfileModal;
+
   const navigate = useNavigate();
 
   const currentSavedEvents = props.currentSavedEvents;
-  const [newName, setNewName] = useState(userName);
-  const [newAge, setNewAge] = useState(userAge);
-  const [newCity, setNewCity] = useState(userCity);
-  const [newCountry, setNewCountry] = useState(userCountry);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [newProfilePicture, setNewProfilePicture] = useState("");
-  const [newBannerPicture, setNewBannerPicture] = useState("");
 
   const id = sessionStorage.getItem("userId");
-
-  const handleProfilePictureChange = (e) => {
-    const img = e.target.files[0];
-    setNewProfilePicture(img);
-  };
-
-  const handleBannerPictureChange = (e) => {
-    const img = e.target.files[0];
-    setNewBannerPicture(img);
-  };
-
-  const handleProfileUpdateSubmit = (e) => {
-    e.preventDefault();
-    let formData = new FormData();
-    formData.append("profile", newProfilePicture);
-    formData.append("banner", newBannerPicture);
-    formData.append("name", newName);
-    formData.append("age", newAge);
-    formData.append("city", newCity);
-    formData.append("country", newCountry);
-
-    axios
-      .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`, formData, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      })
-      .then((response) => {
-        console.log(response.data); // log the newly created event object
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setShowProfileModal(false);
-        setNewProfilePicture("");
-        setNewBannerPicture("");
-      });
-  };
 
   return user.userName ? (
     <div className="profile-container">
@@ -127,28 +85,25 @@ const FanProfilepage = (props) => {
             <Button
               className="create-event-button"
               variant="primary"
-              onClick={() => setShowProfileModal(true)}
+              onClick={props.onEditUser}
             >
               Edit Profile
             </Button>
           ) : null}
         </article>
-        <Modal
-          show={showProfileModal}
-          onHide={() => setShowProfileModal(false)}
-        >
+        <Modal show={showProfileModal} onHide={props.onHideProfileModal}>
           <Modal.Header closeButton>
             <Modal.Title>Profile</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form onSubmit={handleProfileUpdateSubmit}>
+            <Form onSubmit={props.onFanProfileUpdateSubmit}>
               <Form.Group controlId="userName">
                 <Form.Label>*Name:</Form.Label>
                 <Form.Control
                   type="text"
                   name="userName"
                   value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
+                  onChange={props.onNameChange}
                   required
                 />
               </Form.Group>
@@ -158,7 +113,7 @@ const FanProfilepage = (props) => {
                   type="number"
                   name="userAge"
                   value={newAge}
-                  onChange={(e) => setNewAge(e.target.value)}
+                  onChange={props.onAgeChange}
                 />
               </Form.Group>
               <Form.Group>
@@ -167,14 +122,14 @@ const FanProfilepage = (props) => {
                   type="text"
                   name="userCity"
                   value={newCity}
-                  onChange={(e) => setNewCity(e.target.value)}
+                  onChange={props.onCityChange}
                 />
               </Form.Group>
               <Form.Group controlId="userCountry">
                 <Form.Label>*Country:</Form.Label>
                 <Form.Select
                   value={newCountry}
-                  onChange={(e) => setNewCountry(e.target.value)}
+                  onChange={props.onCountryChange}
                   required
                 >
                   {countryNames.map((countryName) => {
@@ -187,7 +142,7 @@ const FanProfilepage = (props) => {
                 <Form.Control
                   type="file"
                   name="profile"
-                  onChange={handleProfilePictureChange}
+                  onChange={props.onProfilePictureChange}
                 />
                 <Form.Text className="text-muted">
                   Please select an image to upload.
@@ -198,7 +153,7 @@ const FanProfilepage = (props) => {
                 <Form.Control
                   type="file"
                   name="banner"
-                  onChange={handleBannerPictureChange}
+                  onChange={props.onBannerPictureChange}
                 />
                 <Form.Text className="text-muted">
                   Please select an image to upload.

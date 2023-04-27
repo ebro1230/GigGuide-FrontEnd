@@ -76,7 +76,7 @@ const Signup = () => {
       formData.append("profile", profile);
       formData.append("name", name);
       formData.append("age", age);
-      formData.append("username", username);
+      formData.append("username", username.toLowerCase());
       formData.append("email", email);
       formData.append("password", password);
       formData.append("city", city);
@@ -133,13 +133,13 @@ const Signup = () => {
   return success ? (
     <Modal show={true} centered>
       <Modal.Header>
-        <Modal.Title>Login Successful!</Modal.Title>
+        <Modal.Title>Sign Up Successful!</Modal.Title>
       </Modal.Header>
     </Modal>
   ) : failure ? (
     <Modal show={true} centered>
       <Modal.Header>
-        <Modal.Title>Login Failed!</Modal.Title>
+        <Modal.Title>Sign Up Failed!</Modal.Title>
       </Modal.Header>
     </Modal>
   ) : usernameTaken ? (
@@ -151,7 +151,7 @@ const Signup = () => {
   ) : emailTaken ? (
     <Modal show={true} centered>
       <Modal.Header>
-        <Modal.Title>Email already associated with an account</Modal.Title>
+        <Modal.Title>Email Already Associated with an Account</Modal.Title>
       </Modal.Header>
     </Modal>
   ) : (

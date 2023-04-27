@@ -13,6 +13,15 @@ const UserProfilepage = () => {
   const [currentFaveArtists, setCurrentFaveArtists] = useState([]);
   const [currentSavedEvents, setCurrentSavedEvents] = useState([]);
   const [isTouring, setIsTouring] = useState(false);
+  const [fanChange, setFanChange] = useState(0);
+
+  const [newName, setNewName] = useState("");
+  const [newAge, setNewAge] = useState("");
+  const [newCity, setNewCity] = useState("");
+  const [newCountry, setNewCountry] = useState("");
+  const [newProfilePicture, setNewProfilePicture] = useState("");
+  const [newBannerPicture, setNewBannerPicture] = useState("");
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleHeartClick = async (e) => {
     e.preventDefault();
@@ -116,12 +125,69 @@ const UserProfilepage = () => {
     }
   };
 
+  const handleProfilePictureChange = (e) => {
+    const img = e.target.files[0];
+    setNewProfilePicture(img);
+  };
+
+  const handleBannerPictureChange = (e) => {
+    const img = e.target.files[0];
+    setNewBannerPicture(img);
+  };
+
+  const handleEditUser = () => {
+    setShowProfileModal(true);
+  };
+  const handleHideProfileModal = () => setShowProfileModal(false);
+
+  const handleAgeChange = (e) => setNewAge(e.target.value);
+
+  const handleCityChange = (e) => setNewCity(e.target.value);
+
+  const handleCountryChange = (e) => setNewCountry(e.target.value);
+
+  const handleNameChange = (e) => setNewName(e.target.value);
+
+  const handleFanProfileUpdateSubmit = (e) => {
+    e.preventDefault();
+    let formData = new FormData();
+    formData.append("profile", newProfilePicture);
+    formData.append("banner", newBannerPicture);
+    formData.append("name", newName);
+    formData.append("age", newAge);
+    formData.append("city", newCity);
+    formData.append("country", newCountry);
+
+    axios
+      .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`, formData, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
+      })
+      .then((response) => {
+        console.log(response.data); // log the newly created event object
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        setShowProfileModal(false);
+        setNewProfilePicture("");
+        setNewBannerPicture("");
+        setFanChange(fanChange + 1);
+      });
+  };
+
   useEffect(() => {
     setIsLoading(true);
     if (userId.length > 20) {
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}api/user/${userId}`)
         .then((response) => {
+          setNewName(response.data.name);
+          setNewCity(response.data.city);
+          setNewCountry(response.data.country);
+          setNewAge(response.data.age);
           setUser({
             userId: userId,
             userUsername: response.data.username,
@@ -303,7 +369,7 @@ const UserProfilepage = () => {
           setIsLoading(false);
         });
     }
-  }, [userId]);
+  }, [userId, fanChange]);
 
   return isLoading ? (
     <div
@@ -327,7 +393,23 @@ const UserProfilepage = () => {
           currentSavedEvents={currentSavedEvents}
           onEventClick={handleEventClick}
           onHeartClick={handleHeartClick}
+          onFanProfileUpdateSubmit={handleFanProfileUpdateSubmit}
+          onAgeChange={handleAgeChange}
+          onCityChange={handleCityChange}
+          onNameChange={handleNameChange}
+          onCountryChange={handleCountryChange}
+          onProfilePictureChange={handleProfilePictureChange}
+          onBannerPictureChange={handleBannerPictureChange}
+          onEditUser={handleEditUser}
+          onHideProfileModal={handleHideProfileModal}
           isTouring={isTouring}
+          newName={newName}
+          newAge={newAge}
+          newCity={newCity}
+          newCountry={newCountry}
+          newProfilePicture={newProfilePicture}
+          newBannerPicture={newBannerPicture}
+          showProfileModal={showProfileModal}
         />
       ) : user.userType === "Artist" ? (
         <ArtistProfilepage
