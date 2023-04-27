@@ -97,9 +97,10 @@ const Signup = () => {
         );
         console.log(response);
         if (response.status === 200) {
-          //console.log(response.status);
+          setSuccess(true);
           setTimeout(() => {
             setSuccess(false);
+            navigate("/login");
           }, 3000);
         } else {
           const data = await response.json();
@@ -144,7 +145,7 @@ const Signup = () => {
   ) : usernameTaken ? (
     <Modal show={true} centered>
       <Modal.Header>
-        <Modal.Title>Username already exists</Modal.Title>
+        <Modal.Title>Username Already Exists</Modal.Title>
       </Modal.Header>
     </Modal>
   ) : emailTaken ? (

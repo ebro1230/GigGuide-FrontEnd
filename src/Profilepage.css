@@ -278,6 +278,17 @@
     max-width: 1200px;
    
 }
+.nobannerdiv{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  width: 100vw;
+  max-height:675px;
+  max-width: 1200px;
+  padding-top:90px;
+ 
+}
 .carousel{
   display:flex;
   align-items: center;

@@ -84,19 +84,23 @@ const FanProfilepage = (props) => {
     <div className="profile-container">
       <section className="img-container">
         <div className="centerdiv">
-          <article className="bannerdiv">
-            {userBannerImg ? (
+          {userBannerImg.length ? (
+            <article className="bannerdiv">
               <Image
                 fluid={true}
                 className="banner-img"
                 src={userBannerImg}
                 alt="Banner img"
               />
-            ) : null}
-          </article>
+            </article>
+          ) : (
+            <article className="nobannerdiv">
+              <Image fluid={true} className="banner-img" />
+            </article>
+          )}
         </div>
         <article>
-          {userProfileImg ? (
+          {userProfileImg.length ? (
             <Image
               fluid={true}
               className="profile-img"
@@ -109,7 +113,6 @@ const FanProfilepage = (props) => {
               fluid={true}
               className="no-profile-img"
               roundedCircle={true}
-              alt="No profile img"
             />
           )}
         </article>

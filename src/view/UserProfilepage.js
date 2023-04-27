@@ -130,11 +130,15 @@ const UserProfilepage = () => {
             userCity: response.data.city,
             userCountry: response.data.country,
             userGenre: response.data.genre,
-            userProfileImgRaw: response.data.profilePicture,
-            userProfileImg:
-              process.env.REACT_APP_BACKEND_URL + response.data.profilePicture,
-            userBannerImg:
-              process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture,
+            userProfileImgRaw: response.data.profilePicture
+              ? response.data.profilePicture
+              : "",
+            userProfileImg: response.data.profilePicture
+              ? process.env.REACT_APP_BACKEND_URL + response.data.profilePicture
+              : "",
+            userBannerImg: response.data.bannerPicture
+              ? process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture
+              : "",
             favouriteArtists: response.data.favouriteArtists,
             bio: response.data.bio,
             songsList: response.data.songsList,

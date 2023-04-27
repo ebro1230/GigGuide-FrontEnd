@@ -47,7 +47,7 @@ const Login = () => {
         console.log(errorData.response.data);
         setFailure(true);
         setTimeout(() => {
-          navigate("/login");
+          setFailure(false);
         }, 3000);
         throw new Error(errorData.message);
       }
