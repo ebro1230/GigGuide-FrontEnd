@@ -6,6 +6,7 @@ import Button from "react-bootstrap/Button";
 import "../Event.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Nav } from "react-bootstrap";
+import Row from "react-bootstrap/Row";
 
 const Event = (props) => {
   const upcomingEvents = props.upcomingEvents;
@@ -59,80 +60,89 @@ const Event = (props) => {
                     </div>
                   </AccordionHeader>
                   <Accordion.Body>
-                    <Nav.Link
-                      onClick={() => {
-                        navigate(`/${event.artistId}/event/${event.eventId}`);
-                      }}
-                    >
-                      <div className="col-7 col-sm-9">
-                        <div className="row">
-                          <p
-                            className="venueAddress"
-                            style={{ textDecoration: "underline" }}
-                          >
-                            Event Address:
-                          </p>
-                          {event.address ? (
-                            <p className="venueAddress">{event.address}</p>
-                          ) : (
-                            <p className="venueAddress">Address Unavailable</p>
-                          )}
-                        </div>
-                        <div className="row">
-                          <p
-                            className="eventInfo"
-                            style={{ textDecoration: "underline" }}
-                          >
-                            Event Info:
-                          </p>
-                          {event.info ? (
-                            <p className="eventInfo">{event.info}</p>
-                          ) : (
-                            <p className="eventInfo">
-                              Event Information Unavailable
-                            </p>
-                          )}
+                    <div className="container">
+                      <div className="row">
+                        <Nav.Link
+                          onClick={() => {
+                            navigate(
+                              `/${event.artistId}/event/${event.eventId}`
+                            );
+                          }}
+                        >
+                          <div className="col-7 col-sm-9">
+                            <div className="row">
+                              <p
+                                className="venueAddress"
+                                style={{ textDecoration: "underline" }}
+                              >
+                                Event Address:
+                              </p>
+                              {event.address ? (
+                                <p className="venueAddress">{event.address}</p>
+                              ) : (
+                                <p className="venueAddress">
+                                  Address Unavailable
+                                </p>
+                              )}
+                            </div>
+                            <div className="row">
+                              <p
+                                className="eventInfo"
+                                style={{ textDecoration: "underline" }}
+                              >
+                                Event Info:
+                              </p>
+                              {event.info ? (
+                                <p className="eventInfo">{event.info}</p>
+                              ) : (
+                                <p className="eventInfo">
+                                  Event Information Unavailable
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </Nav.Link>
+
+                        <div className="col-5 col-sm-3 saveEventdiv">
+                          {id ? (
+                            currentSavedEvents.length ? (
+                              currentSavedEvents.find(
+                                (savedEvent) => savedEvent.id === event.eventId
+                              ) ? (
+                                <Button
+                                  variant="success"
+                                  className="saveEventButton"
+                                  onClick={props.onEventClick}
+                                  value="Saved"
+                                  data-eventInformation={JSON.stringify(event)}
+                                >
+                                  Saved
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="primary"
+                                  className="saveEventButton"
+                                  onClick={props.onEventClick}
+                                  value="Save Event"
+                                  data-eventInformation={JSON.stringify(event)}
+                                >
+                                  Save Event
+                                </Button>
+                              )
+                            ) : (
+                              <Button
+                                variant="primary"
+                                className="saveEventButton"
+                                onClick={props.onEventClick}
+                                value="Save Event"
+                                data-eventInformation={JSON.stringify(event)}
+                              >
+                                Save Event
+                              </Button>
+                            )
+                          ) : null}
                         </div>
                       </div>
-                    </Nav.Link>
-                    <div className="col-5 col-sm-3 saveEventdiv">
-                      {id ? (
-                        currentSavedEvents.length ? (
-                          currentSavedEvents.find(
-                            (savedEvent) => savedEvent.id === event.eventId
-                          ) ? (
-                            <Button
-                              variant="success"
-                              className="saveEventButton"
-                              onClick={props.onEventClick}
-                              value="Saved"
-                              data-eventInformation={JSON.stringify(event)}
-                            >
-                              Saved
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="primary"
-                              className="saveEventButton"
-                              onClick={props.onEventClick}
-                              value="Save Event"
-                              data-eventInformation={JSON.stringify(event)}
-                            >
-                              Save Event
-                            </Button>
-                          )
-                        ) : (
-                          <Button
-                            variant="primary"
-                            className="saveEventButton"
-                            onClick={props.onEventClick}
-                            value="Save Event"
-                            data-eventInformation={JSON.stringify(event)}
-                          >
-                            Save Event
-                          </Button>
-                        )
-                      ) : null}
                     </div>
                   </Accordion.Body>
                 </AccordionItem>

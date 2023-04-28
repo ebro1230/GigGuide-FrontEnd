@@ -477,7 +477,7 @@ const ArtistProfilepage = (props) => {
                       <Col>
                         {song.releaseDate ? (
                           <div>
-                            *Release date:{" "}
+                            Release date:{" "}
                             {new Date(song.releaseDate).toLocaleDateString(
                               "en-US",
                               {
@@ -561,7 +561,7 @@ const ArtistProfilepage = (props) => {
                   </Form.Group>
                   <Form.Group controlId="songReleaseDate">
                     <Row>
-                      <Form.Label>Release Date:</Form.Label>
+                      <Form.Label>*Release Date:</Form.Label>
                     </Row>
                     <Row>
                       <Col>
