@@ -39,18 +39,30 @@ const ArtistProfilepage = (props) => {
   const currentFaveArtists = props.currentFaveArtists;
   const currentSavedEvents = props.currentSavedEvents;
   const id = sessionStorage.getItem("userId");
-  let eventKey = 0;
+  const eventName = props.eventName;
+  const eventCity = props.eventCity;
+  const eventCountry = props.eventCountry;
+  const eventStreet = props.eventStreet;
+  const eventPostalCode = props.eventPostalCode;
+  const eventState = props.eventState;
+  const eventDate = props.eventDate;
+  const displayDate = props.displayDate;
+  const displayReleaseDate = props.displayReleaseDate;
+  const eventInfo = props.eventInfo;
+  const newSong = props.newSong;
+  const newName = props.newName;
+  const newGenre = props.newGenre;
+  const newCity = props.newCity;
+  const newCountry = props.newCountry;
+  const newProfilePicture = props.newProfilePicture;
+  const newBannerPicture = props.newBannerPicture;
+  const showProfileModal = props.showProfileModal;
+  const showSongsModal = props.showSongsModal;
+  const showEventModal = props.showEventModal;
 
   //STATE VARIABLES AND FUNCTIONS FOR CREATING BIO CONTENT
   const [content, setContent] = useState(bio);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [newName, setNewName] = useState(userName);
-  const [newGenre, setNewGenre] = useState(userGenre);
-  const [newCity, setNewCity] = useState(userCity);
-  const [newCountry, setNewCountry] = useState(userCountry);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [newProfilePicture, setNewProfilePicture] = useState("");
-  const [newBannerPicture, setNewBannerPicture] = useState("");
 
   const handleContentChange = (e) => {
     setContent(e.target.value);
@@ -60,44 +72,6 @@ const ArtistProfilepage = (props) => {
     setIsEditMode(true);
   };
 
-  const handleProfilePictureChange = (e) => {
-    const img = e.target.files[0];
-    setNewProfilePicture(img);
-  };
-
-  const handleBannerPictureChange = (e) => {
-    const img = e.target.files[0];
-    setNewBannerPicture(img);
-  };
-
-  const handleProfileUpdateSubmit = (e) => {
-    e.preventDefault();
-    let formData = new FormData();
-    formData.append("profile", newProfilePicture);
-    formData.append("banner", newBannerPicture);
-    formData.append("name", newName);
-    formData.append("city", newCity);
-    formData.append("country", newCountry);
-    formData.append("genre", newGenre);
-
-    axios
-      .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}`, formData, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-        },
-      })
-      .then((response) => {
-        console.log(response.data); // log the newly created event object
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setShowProfileModal(false);
-        setNewProfilePicture("");
-        setNewBannerPicture("");
-      });
-  };
   const handleUpdateButtonClick = (e) => {
     e.preventDefault();
     const payload = { bio: content };
@@ -121,115 +95,6 @@ const ArtistProfilepage = (props) => {
       });
   };
 
-  // MODAL DATA FOR CREATING NEW SONGS
-  const [showSongsModal, setShowSongsModal] = useState(false);
-  const [newSong, setNewSong] = useState({
-    name: "",
-    minutes: "",
-    seconds: "",
-    url: "",
-    releaseDate: "",
-    album: "",
-  });
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setNewSong({ ...newSong, [name]: value });
-  };
-
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    const headers = { "Content-Type": "application/json" };
-    const payload = newSong;
-    console.log(newSong.minutes);
-    console.log(newSong.seconds);
-    // Send the new song to the server using Axios
-    axios
-      .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}/song`, payload, {
-        headers,
-      })
-      .then((response) => {
-        console.log("MY NEW SONG IS IN DB", response.data);
-      })
-      .catch((err) => {
-        console.log("DID'T ADD MY NEW SONG", err);
-      })
-      .finally(() => {
-        // Hide the modal
-        setShowSongsModal(false);
-        setNewSong({
-          name: "",
-          minutes: "",
-          seconds: "",
-          url: "",
-          releaseDate: "",
-          album: "",
-        });
-      });
-  };
-  //MODAL DATA FOR CREATING NEW EVENT
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [eventName, setEventName] = useState("");
-  const [eventCity, setEventCity] = useState(
-    userCity.charAt(0).toUpperCase() + userCity.slice(1)
-  );
-  const [eventCountry, setEventCountry] = useState(userCountry);
-  const [eventStreet, setEventStreet] = useState("");
-  const [eventPostalCode, setEventPostalCode] = useState("");
-  const [eventState, setEventState] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [displayDate, setDisplayDate] = useState("");
-  const [displayReleaseDate, setDisplayReleaseDate] = useState("");
-  const [eventInfo, setEventInfo] = useState("");
-  const handleEventSubmit = (e) => {
-    e.preventDefault();
-    const newEvent = {
-      artistId: userId,
-      profilePicture: userProfileImgRaw,
-      artistName: userName,
-      eventName: eventName,
-      date: eventDate,
-      startTime: eventDate,
-      info: eventInfo,
-      street: eventStreet,
-      city: eventCity,
-      state: eventState ? eventState : "",
-      country: eventCountry,
-      postalCode: eventPostalCode,
-      address: eventState
-        ? `${eventStreet}, ${eventCity}, ${eventState} ${eventPostalCode}, ${eventCountry}`
-        : `${eventStreet}, ${eventPostalCode} ${eventCity}, ${eventCountry}`,
-      artistType: "local",
-    };
-    console.log(newEvent);
-    const headers = { "Content-Type": "application/json" };
-    const payload = newEvent;
-
-    axios
-      .put(
-        `${process.env.REACT_APP_BACKEND_URL}api/user/${id}/upcomingEvent`,
-        payload,
-        {
-          headers,
-        }
-      )
-      .then((response) => {
-        console.log(response.data); // log the newly created event object
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setShowEventModal(false);
-        setEventName("");
-        setEventDate("");
-        setEventInfo("");
-        setEventState("");
-        setEventCountry(userCountry);
-        setEventStreet("");
-        setEventPostalCode("");
-        setEventCity(userCity.charAt(0).toUpperCase() + userCity.slice(1));
-      });
-  };
   return user.userName ? (
     <main className="profile-container">
       <section className="img-container">
@@ -277,7 +142,7 @@ const ArtistProfilepage = (props) => {
                 <Button
                   className="create-event-button"
                   variant="primary"
-                  onClick={() => setShowProfileModal(true)}
+                  onClick={props.onEditUser}
                 >
                   Edit Profile
                 </Button>
@@ -332,22 +197,19 @@ const ArtistProfilepage = (props) => {
             </Col>
           </Row>
         </article>
-        <Modal
-          show={showProfileModal}
-          onHide={() => setShowProfileModal(false)}
-        >
+        <Modal show={showProfileModal} onHide={props.onHideProfileModal}>
           <Modal.Header closeButton>
             <Modal.Title>Profile</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form onSubmit={handleProfileUpdateSubmit}>
+            <Form onSubmit={props.onArtistProfileUpdateSubmit}>
               <Form.Group controlId="userName">
                 <Form.Label>*Name:</Form.Label>
                 <Form.Control
                   type="text"
                   name="userName"
                   value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
+                  onChange={props.onNewName}
                   required
                 />
               </Form.Group>
@@ -357,14 +219,14 @@ const ArtistProfilepage = (props) => {
                   type="text"
                   name="userCity"
                   value={newCity}
-                  onChange={(e) => setNewCity(e.target.value)}
+                  onChange={props.onNewCity}
                 />
               </Form.Group>
               <Form.Group controlId="userCountry">
                 <Form.Label>*Country:</Form.Label>
                 <Form.Select
                   value={newCountry}
-                  onChange={(e) => setNewCountry(e.target.value)}
+                  onChange={props.onNewCountry}
                   required
                 >
                   {countryNames.map((countryName) => {
@@ -376,7 +238,7 @@ const ArtistProfilepage = (props) => {
                 <Form.Label>Genre:</Form.Label>
                 <Form.Select
                   value={newGenre}
-                  onChange={(e) => setNewGenre(e.target.value)}
+                  onChange={props.onNewGenre}
                   required
                 >
                   {genreNames.map((genreName) => {
@@ -389,7 +251,7 @@ const ArtistProfilepage = (props) => {
                 <Form.Control
                   type="file"
                   name="profile"
-                  onChange={handleProfilePictureChange}
+                  onChange={props.onProfilePictureChange}
                 />
                 <Form.Text className="text-muted">
                   Please select an image to upload.
@@ -400,7 +262,7 @@ const ArtistProfilepage = (props) => {
                 <Form.Control
                   type="file"
                   name="banner"
-                  onChange={handleBannerPictureChange}
+                  onChange={props.onBannerPictureChange}
                 />
                 <Form.Text className="text-muted">
                   Please select an image to upload.
@@ -464,24 +326,24 @@ const ArtistProfilepage = (props) => {
             <Button
               className="create-event-button"
               variant="primary"
-              onClick={() => setShowEventModal(true)}
+              onClick={props.onNewEvent}
             >
-              Create Event
+              Add New Event
             </Button>
           ) : null}
 
-          <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
+          <Modal show={showEventModal} onHide={props.onHideNewEventModal}>
             <Modal.Header closeButton>
-              <Modal.Title>Create New Event</Modal.Title>
+              <Modal.Title>Add New Event</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <Form onSubmit={handleEventSubmit}>
+              <Form onSubmit={props.onEventSubmit}>
                 <Form.Group>
                   <Form.Label>Event Name:</Form.Label>
                   <Form.Control
                     type="text"
                     value={eventName}
-                    onChange={(e) => setEventName(e.target.value)}
+                    onChange={props.onEventNameChange}
                     required
                   />
                 </Form.Group>
@@ -493,7 +355,7 @@ const ArtistProfilepage = (props) => {
                       <Form.Control
                         type="text"
                         value={eventStreet}
-                        onChange={(e) => setEventStreet(e.target.value)}
+                        onChange={props.onEventStreetChange}
                         required
                       />
                     </Col>
@@ -503,7 +365,7 @@ const ArtistProfilepage = (props) => {
                       <Form.Label>Country:</Form.Label>
                       <Form.Select
                         value={eventCountry}
-                        onChange={(e) => setEventCountry(e.target.value)}
+                        onChange={props.onEventCountryChange}
                         required
                       >
                         {countryNames.map((countryName) => {
@@ -520,7 +382,7 @@ const ArtistProfilepage = (props) => {
                         <Form.Label>State:</Form.Label>
                         <Form.Select
                           value={eventState}
-                          onChange={(e) => setEventState(e.target.value)}
+                          onChange={props.onEventStateChange}
                           required
                         >
                           {stateAbbreviations.map((state) => {
@@ -536,7 +398,7 @@ const ArtistProfilepage = (props) => {
                       <Form.Control
                         type="text"
                         value={eventCity}
-                        onChange={(e) => setEventCity(e.target.value)}
+                        onChange={props.onEventCityChange}
                         required
                       />
                     </Col>
@@ -545,7 +407,7 @@ const ArtistProfilepage = (props) => {
                       <Form.Control
                         type="text"
                         value={eventPostalCode}
-                        onChange={(e) => setEventPostalCode(e.target.value)}
+                        onChange={props.onEventPostalCodeChange}
                         required
                       />
                     </Col>
@@ -559,10 +421,7 @@ const ArtistProfilepage = (props) => {
                     selected={displayDate}
                     todayButton
                     placeholderText={`${new Date().toLocaleString()}`}
-                    onChange={(date) => {
-                      setDisplayDate(date);
-                      setEventDate(date.toISOString());
-                    }}
+                    onChange={props.onEventDateChange}
                     dateFormat="Pp"
                     minDate={new Date()}
                     required
@@ -575,7 +434,7 @@ const ArtistProfilepage = (props) => {
                     rows={3}
                     value={eventInfo}
                     placeholder="Minimum Age, Cover, Prohibited Items, etc."
-                    onChange={(e) => setEventInfo(e.target.value)}
+                    onChange={props.onEventInfoChange}
                     required
                   />
                 </Form.Group>
@@ -608,7 +467,9 @@ const ArtistProfilepage = (props) => {
                           <div className="fw-bold">{song.name}</div>
                           {song.minutes ? (
                             <Badge bg="primary" pill>
-                              Song Duration: {song.minutes}:{song.seconds}
+                              Song Duration:{" "}
+                              {song.minutes.toString().padStart(2, "0")}:
+                              {song.seconds.toString().padStart(2, "0")}
                             </Badge>
                           ) : null}
                         </div>
@@ -616,7 +477,7 @@ const ArtistProfilepage = (props) => {
                       <Col>
                         {song.releaseDate ? (
                           <div>
-                            Release date:{" "}
+                            *Release date:{" "}
                             {new Date(song.releaseDate).toLocaleDateString(
                               "en-US",
                               {
@@ -640,29 +501,23 @@ const ArtistProfilepage = (props) => {
               </div>
             )}
             {id === userId ? (
-              <Button
-                className="add-song-button"
-                onClick={() => setShowSongsModal(true)}
-              >
+              <Button className="add-song-button" onClick={props.onNewSong}>
                 Add New Song
               </Button>
             ) : null}
-            <Modal
-              show={showSongsModal}
-              onHide={() => setShowSongsModal(false)}
-            >
+            <Modal show={showSongsModal} onHide={props.onHideSongsModal}>
               <Modal.Header closeButton>
                 <Modal.Title>Add New Song</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <Form onSubmit={handleFormSubmit}>
+                <Form onSubmit={props.onSongSubmit}>
                   <Form.Group controlId="songName">
                     <Form.Label>*Song Name:</Form.Label>
                     <Form.Control
                       type="text"
                       name="name"
                       value={newSong.name}
-                      onChange={handleInputChange}
+                      onChange={props.onInputChange}
                       required
                     />
                   </Form.Group>
@@ -679,7 +534,7 @@ const ArtistProfilepage = (props) => {
                           min={0}
                           max={59}
                           value={newSong.minutes.toString().padStart(2, "0")}
-                          onChange={handleInputChange}
+                          onChange={props.onInputChange}
                         />
                       </Col>
                       <Col>
@@ -690,7 +545,7 @@ const ArtistProfilepage = (props) => {
                           min={0}
                           max={59}
                           value={newSong.seconds.toString().padStart(2, "0")}
-                          onChange={handleInputChange}
+                          onChange={props.onInputChange}
                         />
                       </Col>
                     </Row>
@@ -701,7 +556,7 @@ const ArtistProfilepage = (props) => {
                       type="text"
                       name="url"
                       value={newSong.url}
-                      onChange={handleInputChange}
+                      onChange={props.onInputChange}
                     />
                   </Form.Group>
                   <Form.Group controlId="songReleaseDate">
@@ -715,12 +570,7 @@ const ArtistProfilepage = (props) => {
                           value={newSong.releaseDate}
                           todayButton
                           placeholderText={`${new Date().toLocaleString()}`}
-                          onChange={(date) => {
-                            setDisplayReleaseDate(date);
-                            handleInputChange({
-                              target: { name: "releaseDate", value: date },
-                            });
-                          }}
+                          onChange={props.onSongReleaseDateChange}
                           required
                         />
                       </Col>
@@ -732,7 +582,7 @@ const ArtistProfilepage = (props) => {
                       type="text"
                       name="album"
                       value={newSong.album}
-                      onChange={handleInputChange}
+                      onChange={props.onInputChange}
                     />
                   </Form.Group>
                   <p style={{ fontSize: "smaller" }}>* = Required Field</p>

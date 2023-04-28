@@ -66,12 +66,32 @@ const Event = (props) => {
                     >
                       <div className="col-7 col-sm-9">
                         <div className="row">
-                          <p className="venueAddress">Event Address:</p>
-                          <p className="venueAddress">{event.address}</p>
+                          <p
+                            className="venueAddress"
+                            style={{ textDecoration: "underline" }}
+                          >
+                            Event Address:
+                          </p>
+                          {event.address ? (
+                            <p className="venueAddress">{event.address}</p>
+                          ) : (
+                            <p className="venueAddress">Address Unavailable</p>
+                          )}
                         </div>
                         <div className="row">
-                          <p className="eventInfo">Event Info:</p>
-                          <p className="eventInfo">{event.info}</p>
+                          <p
+                            className="eventInfo"
+                            style={{ textDecoration: "underline" }}
+                          >
+                            Event Info:
+                          </p>
+                          {event.info ? (
+                            <p className="eventInfo">{event.info}</p>
+                          ) : (
+                            <p className="eventInfo">
+                              Event Information Unavailable
+                            </p>
+                          )}
                         </div>
                       </div>
                     </Nav.Link>
@@ -170,12 +190,32 @@ const Event = (props) => {
                     >
                       <div className="col-7 col-sm-9">
                         <div className="row">
-                          <p className="venueAddress">Event Address:</p>
-                          <p className="venueAddress">{event.address}</p>
+                          <p
+                            className="venueAddress"
+                            style={{ textDecoration: "underline" }}
+                          >
+                            Event Address:
+                          </p>
+                          {event.address ? (
+                            <p className="venueAddress">{event.address}</p>
+                          ) : (
+                            <p className="venueAddress">Address Unavailable</p>
+                          )}
                         </div>
                         <div className="row">
-                          <p className="eventInfo">Event Info:</p>
-                          <p className="eventInfo">{event.info}</p>
+                          <p
+                            className="eventInfo"
+                            style={{ textDecoration: "underline" }}
+                          >
+                            Event Info:
+                          </p>
+                          {event.info ? (
+                            <p className="eventInfo">{event.info}</p>
+                          ) : (
+                            <p className="eventInfo">
+                              Event Information Unavailable
+                            </p>
+                          )}
                         </div>
                       </div>
                     </Nav.Link>
