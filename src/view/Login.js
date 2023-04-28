@@ -36,10 +36,11 @@ const Login = () => {
         const { data } = await response;
         const token = data.token;
         const id = data.response._id;
-        sessionStorage.setItem("jwt", token);
-        sessionStorage.setItem("userId", id);
+
         setSuccess(true);
         setTimeout(() => {
+          sessionStorage.setItem("jwt", token);
+          sessionStorage.setItem("userId", id);
           navigate("/homepage");
         }, 3000);
       } else {

@@ -369,7 +369,10 @@ const UserProfilepage = () => {
         .then((response) => {
           setNewName(response.data.name);
           setUserName(response.data.name);
-          setNewCity(response.data.city);
+          setNewCity(
+            response.data.city.charAt(0).toUpperCase() +
+              response.data.city.slice(1)
+          );
           setNewCountry(response.data.country);
           setNewAge(response.data.age);
           setNewGenre(response.data.genre);
@@ -386,7 +389,9 @@ const UserProfilepage = () => {
             userUsername: response.data.username,
             userName: response.data.name,
             userAge: response.data.age,
-            userCity: response.data.city,
+            userCity:
+              response.data.city.charAt(0).toUpperCase() +
+              response.data.city.slice(1),
             userCountry: response.data.country,
             userGenre: response.data.genre,
             userProfileImgRaw: response.data.profilePicture

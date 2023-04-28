@@ -209,7 +209,7 @@ const ArtistProfilepage = (props) => {
                   type="text"
                   name="userName"
                   value={newName}
-                  onChange={props.onNewName}
+                  onChange={props.onNameChange}
                   required
                 />
               </Form.Group>
@@ -219,14 +219,14 @@ const ArtistProfilepage = (props) => {
                   type="text"
                   name="userCity"
                   value={newCity}
-                  onChange={props.onNewCity}
+                  onChange={props.onCityChange}
                 />
               </Form.Group>
               <Form.Group controlId="userCountry">
                 <Form.Label>*Country:</Form.Label>
                 <Form.Select
                   value={newCountry}
-                  onChange={props.onNewCountry}
+                  onChange={props.onCountryChange}
                   required
                 >
                   {countryNames.map((countryName) => {
@@ -238,7 +238,7 @@ const ArtistProfilepage = (props) => {
                 <Form.Label>Genre:</Form.Label>
                 <Form.Select
                   value={newGenre}
-                  onChange={props.onNewGenre}
+                  onChange={props.onGenreChange}
                   required
                 >
                   {genreNames.map((genreName) => {
