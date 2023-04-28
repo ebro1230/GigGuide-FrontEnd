@@ -81,7 +81,7 @@ const EventsPage = () => {
               process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture
             );
           } else {
-            setUserBannerImg(undefined);
+            setUserBannerImg("");
           }
           setUserProfileImg(
             process.env.REACT_APP_BACKEND_URL + response.data.profilePicture
