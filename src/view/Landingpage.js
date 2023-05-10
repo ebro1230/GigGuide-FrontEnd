@@ -24,6 +24,7 @@ const LandingPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [upcomingLocalEvents, setUpcomingLocalEvents] = useState([]);
   const [upcomingMainstreamEvents, setUpcomingMainstreamEvents] = useState([]);
+  let localEvents = [];
 
   const favouriteArtists = [];
   const currentFaveArtists = [];
@@ -135,13 +136,16 @@ const LandingPage = () => {
             `${process.env.REACT_APP_BACKEND_URL}api/artists/0/${response.data.country_name}/${response.data.city}/0`
           )
           .then((response) => {
+            console.log(response);
             setLocalBands(response.data);
-            setUpcomingLocalEvents(
-              response.data.map((band) => {
-                return band.upcomingEvents
-                  ? band.upcomingEvents.length
-                    ? band.upcomingEvents.map((event) => {
-                        return {
+
+            response.data.map((band) => {
+              return band.upcomingEvents
+                ? band.upcomingEvents.length
+                  ? band.upcomingEvents.forEach((event) => {
+                      localEvents = [
+                        ...localEvents,
+                        {
                           artistId: band._id,
                           eventId: event._id,
                           profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
@@ -152,12 +156,14 @@ const LandingPage = () => {
                           info: event.info,
                           address: event.address,
                           artistType: "local",
-                        };
-                      })
-                    : null
-                  : null;
-              })
-            );
+                        },
+                      ];
+                    })
+                  : null
+                : null;
+            });
+            console.log(localEvents);
+            setUpcomingLocalEvents(localEvents);
           })
           .catch((error) => {
             console.log(error);
@@ -170,6 +176,7 @@ const LandingPage = () => {
         setIsLoading(false);
       });
   }, []);
+  console.log(upcomingLocalEvents);
   return (
     <div className="landingpage-container">
       <br />
@@ -216,7 +223,7 @@ const LandingPage = () => {
           <div className="localBandsCarouseldiv">
             <h5>{`Local Artists in ${city}, ${countryCode}:`}</h5>
             <DisplayCarousel
-              bands={bands}
+              bands={localBands}
               type="local"
               currentFaveArtists={currentFaveArtists}
             />
