@@ -313,6 +313,9 @@ const EventsPage = () => {
         })
         .catch((error) => {
           console.log(error);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
     if (id) {
