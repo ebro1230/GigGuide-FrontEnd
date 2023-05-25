@@ -127,7 +127,7 @@ const Searchpage = () => {
                     {
                       artistId: band._id,
                       eventId: event._id,
-                      profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
+                      profilePicture: `${band.profilePicture}`,
                       artistName: band.name,
                       eventName: event.eventName,
                       date: event.date,

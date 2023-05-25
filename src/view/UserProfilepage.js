@@ -140,7 +140,6 @@ const UserProfilepage = () => {
           `${process.env.REACT_APP_BACKEND_URL}api/user/${id}/plannedEvents`,
           payload
         );
-        console.log(response);
       } catch (err) {
         if (err.status === 404) {
           console.log("Resource could not be found!");
@@ -257,8 +256,6 @@ const UserProfilepage = () => {
     event.preventDefault();
     const headers = { "Content-Type": "application/json" };
     const payload = newSong;
-    console.log(newSong.minutes);
-    console.log(newSong.seconds);
     // Send the new song to the server using Axios
     axios
       .put(`${process.env.REACT_APP_BACKEND_URL}api/user/${id}/song`, payload, {
@@ -329,7 +326,6 @@ const UserProfilepage = () => {
         : `${eventStreet}, ${eventPostalCode} ${eventCity}, ${eventCountry}`,
       artistType: "local",
     };
-    console.log(newEvent);
     const headers = { "Content-Type": "application/json" };
     const payload = newEvent;
 
@@ -367,6 +363,7 @@ const UserProfilepage = () => {
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}api/user/${userId}`)
         .then((response) => {
+          console.log(response.data.profilePicture);
           setNewName(response.data.name);
           setUserName(response.data.name);
           setNewCity(
@@ -384,6 +381,7 @@ const UserProfilepage = () => {
           setUserProfileImgRaw(
             response.data.profilePicture ? response.data.profilePicture : ""
           );
+          console.log(response.data);
           setUser({
             userId: userId,
             userUsername: response.data.username,
@@ -398,10 +396,10 @@ const UserProfilepage = () => {
               ? response.data.profilePicture
               : "",
             userProfileImg: response.data.profilePicture
-              ? process.env.REACT_APP_BACKEND_URL + response.data.profilePicture
+              ? response.data.profilePicture
               : "",
             userBannerImg: response.data.bannerPicture
-              ? process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture
+              ? response.data.bannerPicture
               : "",
             favouriteArtists: response.data.favouriteArtists,
             bio: response.data.bio,
@@ -411,7 +409,7 @@ const UserProfilepage = () => {
                   return {
                     artistId: event.artistId,
                     eventId: event._id,
-                    profilePicture: `${process.env.REACT_APP_BACKEND_URL}${event.profilePicture}`,
+                    profilePicture: `${event.profilePicture}`,
                     artistName: event.artistName,
                     eventName: event.eventName,
                     date: event.date,

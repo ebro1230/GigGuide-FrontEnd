@@ -69,7 +69,6 @@ const HomePage = () => {
       pic: favePic,
       touring: faveTouring,
     };
-    console.log(fave);
     let favouriteArtists = currentFaveArtists;
     if (
       e.target.src ===
@@ -148,7 +147,6 @@ const HomePage = () => {
           `${process.env.REACT_APP_BACKEND_URL}api/user/${id}/plannedEvents`,
           payload
         );
-        console.log(response);
       } catch (err) {
         if (err.status === 404) {
           console.log("Resource could not be found!");
@@ -240,19 +238,19 @@ const HomePage = () => {
                 `${process.env.REACT_APP_BACKEND_URL}api/artists/0/${response.data.country}/${response.data.city}/${response.data.favouriteGenre}`
               )
               .then((response) => {
+                console.log(response.data);
                 setLocalBands(response.data);
                 localEvents = [];
                 response.data.map((band) => {
                   return band.upcomingEvents
                     ? band.upcomingEvents.length
                       ? band.upcomingEvents.forEach((event) => {
-                          console.log(event);
                           localEvents = [
                             ...localEvents,
                             {
                               artistId: band._id,
                               eventId: event._id,
-                              profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
+                              profilePicture: `${band.profilePicture}`,
                               artistName: band.name,
                               eventName: event.eventName,
                               date: event.date,
@@ -278,18 +276,18 @@ const HomePage = () => {
               )
               .then((response) => {
                 setLocalBands(response.data);
+                console.log(response.data);
                 localEvents = [];
                 response.data.map((band) => {
                   return band.upcomingEvents
                     ? band.upcomingEvents.length
                       ? band.upcomingEvents.forEach((event) => {
-                          console.log(event);
                           localEvents = [
                             ...localEvents,
                             {
                               artistId: band._id,
                               eventId: event._id,
-                              profilePicture: `${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`,
+                              profilePicture: `${band.profilePicture}`,
                               artistName: band.name,
                               eventName: event.eventName,
                               date: event.date,

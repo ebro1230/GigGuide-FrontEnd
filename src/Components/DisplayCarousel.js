@@ -82,7 +82,7 @@ const ControlledCarousel = (props) => {
                       <ArtistCard
                         className="band"
                         name={band.name}
-                        profilePicture={`${process.env.REACT_APP_BACKEND_URL}${band.profilePicture}`}
+                        profilePicture={`${band.profilePicture}`}
                         id={band._id}
                         touring={
                           band.upcomingEvents

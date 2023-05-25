@@ -77,15 +77,11 @@ const EventsPage = () => {
         .then((response) => {
           setUserName(response.data.name);
           if (response.data.bannerPicture) {
-            setUserBannerImg(
-              process.env.REACT_APP_BACKEND_URL + response.data.bannerPicture
-            );
+            setUserBannerImg(response.data.bannerPicture);
           } else {
             setUserBannerImg("");
           }
-          setUserProfileImg(
-            process.env.REACT_APP_BACKEND_URL + response.data.profilePicture
-          );
+          setUserProfileImg(response.data.profilePicture);
           setUserProfileImgRaw(response.data.profilePicture);
           setUserUsername(response.data.username);
           setArtistName(response.data.name);
@@ -95,7 +91,7 @@ const EventsPage = () => {
                   return {
                     artistId: event.artistId,
                     eventId: event._id,
-                    profilePicture: `${process.env.REACT_APP_BACKEND_URL}${event.profilePicture}`,
+                    profilePicture: `${event.profilePicture}`,
                     artistName: event.artistName,
                     eventName: event.eventName,
                     date: event.date,
