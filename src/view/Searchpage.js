@@ -350,9 +350,7 @@ const Searchpage = () => {
             currentSavedEvents={currentSavedEvents}
           />
         </div>
-      ) : (
-        <div>No Matching Results</div>
-      )}
+      ) : null}
     </div>
   );
 };
