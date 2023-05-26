@@ -91,7 +91,7 @@ const EventsPage = () => {
                   return {
                     artistId: event.artistId,
                     eventId: event._id,
-                    profilePicture: `${event.profilePicture}`,
+                    profilePicture: `${response.data.profilePicture}`,
                     artistName: event.artistName,
                     eventName: event.eventName,
                     date: event.date,
