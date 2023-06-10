@@ -5,10 +5,12 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import "../css/Signup-Login.css";
 import logo from "../css/logo.png";
+import LoadingIndicator from "../Components/LoadingIndicator";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [passwordIncorrect, setPasswordIncorrect] = useState(false);
   const [passwordInformation, setPasswordInformation] = useState(false);
@@ -26,6 +28,7 @@ const Login = () => {
     e.preventDefault();
     const headers = { "Content-Type": "application/json" };
     const payload = { username, password };
+    setIsLoading(true);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}api/user/login`,
@@ -36,7 +39,7 @@ const Login = () => {
         const { data } = await response;
         const token = data.token;
         const id = data.response._id;
-
+        setIsLoading(false);
         setSuccess(true);
         setTimeout(() => {
           sessionStorage.setItem("jwt", token);
@@ -46,6 +49,7 @@ const Login = () => {
       } else {
         const errorData = response.data;
         console.log(errorData.response.data);
+        setIsLoading(false);
         setFailure(true);
         setTimeout(() => {
           setFailure(false);
@@ -54,13 +58,16 @@ const Login = () => {
       }
     } catch (err) {
       if (err.response.data === "username not found") {
+        setIsLoading(false);
         setUsernameNotFound(true);
       }
       if (err.response.data === "password incorrect") {
+        setIsLoading(false);
         setPasswordIncorrect(true);
         setPasswordInformation(true);
       }
       setTimeout(() => {
+        setIsLoading(false);
         setPasswordIncorrect(false);
         setUsernameNotFound(false);
       }, 3000);
@@ -68,7 +75,11 @@ const Login = () => {
       throw err;
     }
   };
-  return success ? (
+  return isLoading ? (
+    <div className="Loading">
+      <LoadingIndicator />
+    </div>
+  ) : success ? (
     <Modal show={true} centered>
       <Modal.Header>
         <Modal.Title>Login Successful!</Modal.Title>

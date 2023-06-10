@@ -26,7 +26,7 @@ const Event = (props) => {
               return (
                 <AccordionItem className="AcordionItem" eventKey={eventKey}>
                   <AccordionHeader className="row">
-                    <div className="col-5 col-sm-4 col-md-3 col-lg-2">
+                    <div className="col-5 col-sm-4 col-md-3">
                       <NavLink to={`/${event.artistId}/event/${event.eventId}`}>
                         <Figure>
                           <Figure.Image
@@ -156,7 +156,7 @@ const Event = (props) => {
               return (
                 <AccordionItem className="AcordionItem" eventKey={eventKey}>
                   <AccordionHeader className="row">
-                    <div className="col-5 col-sm-4 col-md-3 col-lg-2">
+                    <div className="col-5 col-sm-4 col-md-3">
                       <NavLink to={`/${event.artistId}/event/${event.eventId}`}>
                         <Figure>
                           <Figure.Image

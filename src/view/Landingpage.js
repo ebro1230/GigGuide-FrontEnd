@@ -138,7 +138,7 @@ const LandingPage = () => {
           .then((response) => {
             console.log(response);
             setLocalBands(response.data);
-
+            localEvents = [];
             response.data.map((band) => {
               return band.upcomingEvents
                 ? band.upcomingEvents.length
